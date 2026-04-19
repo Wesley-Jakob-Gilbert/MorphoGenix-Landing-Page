@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MorphoGenix — The first intraoral biometric device</title>
+  <meta name="description" content="MorphoGenix is a smart intraoral wearable that tracks tongue posture, bruxism, and mouth breathing in real time. Join the beta waitlist." />
+  <meta name="theme-color" content="#0A0F14" />
+
+  <!-- Tailwind via CDN so there is no Node/npm build step -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slatebg:   '#0A0F14',
+            slatebg2:  '#0F151C',
+            slatecard: '#111820',
+            ridge:     '#1A2330',
+            neon:      '#39FF9C',   // primary neon green
+            neondim:   '#1FA76A',
+            electric:  '#3FA9FF',   // accent electric blue
+            electric2: '#7AD1FF',
+            inkhi:     '#E6F0EE',
+            inklo:     '#8A9AA6',
+          },
+          fontFamily: {
+            sans: ['ui-sans-serif','system-ui','-apple-system','"Segoe UI"','Roboto','Inter','sans-serif'],
+            mono: ['ui-monospace','SFMono-Regular','"JetBrains Mono"','Menlo','monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(1100px 600px at 85% -10%, rgba(63,169,255,0.08), transparent 60%),
+        radial-gradient(900px 500px at -10% 10%, rgba(57,255,156,0.06), transparent 60%),
+        #0A0F14;
+    }
+
+    /* Topographic mountain contours — pure CSS/SVG, no image asset needed. */
+    .topo {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='500' viewBox='0 0 1600 500'><g fill='none' stroke='%2339FF9C' stroke-opacity='0.10' stroke-width='1'><path d='M0 420 C 160 360, 280 440, 420 380 S 700 300, 860 360 1120 420, 1280 360 1520 300, 1600 340'/><path d='M0 380 C 160 320, 280 400, 420 340 S 700 260, 860 320 1120 380, 1280 320 1520 260, 1600 300'/><path d='M0 340 C 160 280, 280 360, 420 300 S 700 220, 860 280 1120 340, 1280 280 1520 220, 1600 260'/><path d='M0 300 C 160 240, 280 320, 420 260 S 700 180, 860 240 1120 300, 1280 240 1520 180, 1600 220'/><path d='M0 260 C 160 200, 280 280, 420 220 S 700 140, 860 200 1120 260, 1280 200 1520 140, 1600 180'/><path d='M0 220 C 160 160, 280 240, 420 180 S 700 100, 860 160 1120 220, 1280 160 1520 100, 1600 140'/><path d='M0 180 C 160 120, 280 200, 420 140 S 700 60, 860 120 1120 180, 1280 120 1520 60, 1600 100'/></g><g fill='none' stroke='%233FA9FF' stroke-opacity='0.06' stroke-width='1'><path d='M0 460 C 200 400, 360 460, 520 420 S 820 340, 980 400 1240 460, 1400 400 1600 340, 1600 400'/><path d='M0 440 C 200 380, 360 440, 520 400 S 820 320, 980 380 1240 440, 1400 380 1600 320, 1600 380'/></g></svg>");
+      background-repeat: repeat-x;
+      background-position: center bottom;
+    }
+
+    /* Subtle grid on the hero */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(122,209,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(122,209,255,0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      background-position: -1px -1px;
+      mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+    }
+
+    .glow-ring {
+      box-shadow:
+        0 0 0 1px rgba(57,255,156,0.35),
+        0 0 24px rgba(57,255,156,0.18),
+        0 0 60px rgba(63,169,255,0.12);
+    }
+
+    .btn-neon {
+      background: linear-gradient(180deg, #39FF9C 0%, #1FA76A 100%);
+      color: #06221A;
+      box-shadow: 0 8px 30px rgba(57,255,156,0.25), inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn-neon:hover { filter: brightness(1.05); box-shadow: 0 10px 36px rgba(57,255,156,0.35); }
+    .btn-neon:active { transform: translateY(1px); }
+
+    .chip {
+      background: rgba(63,169,255,0.08);
+      border: 1px solid rgba(63,169,255,0.25);
+      color: #7AD1FF;
+    }
+
+    /* Heartbeat-ish pulsing dot next to "live" text */
+    .pulse {
+      width: 8px; height: 8px; border-radius: 9999px; background: #39FF9C;
+      box-shadow: 0 0 0 0 rgba(57,255,156,0.6);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(57,255,156,0.6); }
+      70%  { box-shadow: 0 0 0 14px rgba(57,255,156,0); }
+      100% { box-shadow: 0 0 0 0 rgba(57,255,156,0); }
+    }
+
+    /* Data-viz ticker bars under the hero */
+    .bar {
+      width: 6px; border-radius: 2px;
+      background: linear-gradient(180deg, #39FF9C 0%, #3FA9FF 100%);
+      opacity: 0.7;
+      animation: bar 1.6s ease-in-out infinite;
+    }
+    @keyframes bar {
+      0%, 100% { transform: scaleY(0.35); }
+      50%      { transform: scaleY(1); }
+    }
+  </style>
+</head>
+
+<body class="text-inkhi font-sans antialiased">
+
+<!-- ============ NAV ============ -->
+<header class="sticky top-0 z-40 backdrop-blur bg-slatebg/70 border-b border-white/5">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2 group">
+      <!-- Logo mark: stylized palate contour -->
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" class="text-neon">
+        <path d="M4 20 C 10 8, 22 8, 28 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M8 22 C 12 16, 20 16, 24 22" stroke="#3FA9FF" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="24" r="1.6" fill="currentColor"/>
+      </svg>
+      <span class="font-semibold tracking-tight text-inkhi group-hover:text-neon transition">MorphoGenix</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-inklo">
+      <a href="#how"    class="hover:text-inkhi transition">How it works</a>
+      <a href="#science" class="hover:text-inkhi transition">Science</a>
+      <a href="#team"   class="hover:text-inkhi transition">Team</a>
+      <a href="#waitlist" class="text-neon hover:brightness-110 transition">Join beta →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 grid-bg opacity-80 pointer-events-none"></div>
+  <div class="absolute inset-x-0 bottom-0 h-[60%] topo pointer-events-none"></div>
+
+  <div class="relative max-w-6xl mx-auto px-6 pt-20 pb-28 md:pt-28 md:pb-36">
+    <div class="flex items-center gap-2 mb-6">
+      <span class="pulse"></span>
+      <span class="text-xs tracking-widest uppercase text-inklo">Private beta · closed cohort · limited units</span>
+    </div>
+
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
+      Your face is
+      <span class="relative inline-block">
+        <span class="bg-gradient-to-r from-neon to-electric bg-clip-text text-transparent">a mountain range</span>
+      </span>
+      <br class="hidden md:block"/>shaped by millions of tiny signals.
+    </h1>
+
+    <p class="mt-6 max-w-2xl text-lg text-inklo leading-relaxed">
+      <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
+      tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
+      <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
+    </p>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-3">
+      <a href="#waitlist" class="btn-neon inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
+        Join the beta waitlist
+        <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#how" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border border-white/10 hover:border-neon/60 hover:text-neon transition">
+        See how it works
+      </a>
+    </div>
+
+    <!-- Live readout strip -->
+    <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
+      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
+        <div class="text-[11px] tracking-widest uppercase text-inklo">Posture score</div>
+        <div class="mt-1 font-mono text-2xl text-neon">87<span class="text-inklo text-base">/100</span></div>
+      </div>
+      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
+        <div class="text-[11px] tracking-widest uppercase text-inklo">Palatal pressure</div>
+        <div class="mt-1 font-mono text-2xl text-electric">0.62 N</div>
+      </div>
+      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
+        <div class="text-[11px] tracking-widest uppercase text-inklo">Clench events</div>
+        <div class="mt-1 font-mono text-2xl text-inkhi">3<span class="text-inklo text-base"> /hr</span></div>
+      </div>
+      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
+        <div class="text-[11px] tracking-widest uppercase text-inklo">Nasal breathing</div>
+        <div class="mt-1 font-mono text-2xl text-neon">94<span class="text-inklo text-base">%</span></div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-end gap-1 h-10" aria-hidden="true">
+      <div class="bar h-full" style="animation-delay:.0s"></div>
+      <div class="bar h-full" style="animation-delay:.1s"></div>
+      <div class="bar h-full" style="animation-delay:.2s"></div>
+      <div class="bar h-full" style="animation-delay:.3s"></div>
+      <div class="bar h-full" style="animation-delay:.4s"></div>
+      <div class="bar h-full" style="animation-delay:.5s"></div>
+      <div class="bar h-full" style="animation-delay:.6s"></div>
+      <div class="bar h-full" style="animation-delay:.7s"></div>
+      <div class="bar h-full" style="animation-delay:.8s"></div>
+      <div class="bar h-full" style="animation-delay:.9s"></div>
+      <div class="bar h-full" style="animation-delay:1.0s"></div>
+      <div class="bar h-full" style="animation-delay:1.1s"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how" class="relative py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="flex items-end justify-between flex-wrap gap-4">
+      <div>
+        <span class="chip inline-block text-xs tracking-widest uppercase px-2.5 py-1 rounded-full">How it works</span>
+        <h2 class="mt-4 text-3xl md:text-4xl font-semibold tracking-tight">Three sensors. One retainer. Your whole oral posture, live.</h2>
+      </div>
+      <p class="max-w-md text-inklo">A thermoformed dental shell with a sealed array of pressure sensors streams over BLE to your phone at 10Hz.</p>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-5">
+      <!-- Step 1 -->
+      <div class="rounded-2xl bg-slatecard border border-white/5 p-6 hover:border-neon/40 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-neon/10 border border-neon/30 grid place-items-center font-mono text-neon">01</div>
+          <div class="font-medium">Wear the device</div>
+        </div>
+        <p class="mt-4 text-inklo leading-relaxed">A custom-fit upper-arch retainer with a sealed FSR array on the palate and molars. Biocompatible silicone. Barely there.</p>
+      </div>
+      <!-- Step 2 -->
+      <div class="rounded-2xl bg-slatecard border border-white/5 p-6 hover:border-electric/40 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-electric/10 border border-electric/30 grid place-items-center font-mono text-electric">02</div>
+          <div class="font-medium">Stream over BLE</div>
+        </div>
+        <p class="mt-4 text-inklo leading-relaxed">An nRF52840 MCU transmits <span class="font-mono text-inkhi">[t, palate_L, palate_R, occlusal]</span> over Nordic UART at 10Hz. Zero wires.</p>
+      </div>
+      <!-- Step 3 -->
+      <div class="rounded-2xl bg-slatecard border border-white/5 p-6 hover:border-neon/40 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-neon/10 border border-neon/30 grid place-items-center font-mono text-neon">03</div>
+          <div class="font-medium">See your posture</div>
+        </div>
+        <p class="mt-4 text-inklo leading-relaxed">A live tongue-pressure heatmap, a 0–100 Posture Score, and session history. Fix what you can finally see.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCIENCE ============ -->
+<section id="science" class="relative py-24 border-t border-white/5 bg-slatebg2">
+  <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-start">
+    <div>
+      <span class="chip inline-block text-xs tracking-widest uppercase px-2.5 py-1 rounded-full">The science</span>
+      <h2 class="mt-4 text-3xl md:text-4xl font-semibold tracking-tight">What we actually measure.</h2>
+      <p class="mt-5 text-inklo leading-relaxed">
+        Your palate is the immovable mountain your face is sculpted around. Bone remodels under pressure —
+        and until now there was no way to <em class="not-italic text-electric">quantify</em> the forces you apply to it every
+        waking and sleeping hour. MorphoGenix reads those forces directly.
+      </p>
+
+      <div class="mt-8 space-y-4">
+        <div class="flex gap-4">
+          <div class="shrink-0 w-10 h-10 rounded-lg border border-neon/30 bg-neon/10 grid place-items-center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 14c2-6 14-6 16 0" stroke="#39FF9C" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="font-medium">Tongue posture (mewing)</div>
+            <div class="text-inklo text-sm mt-1">Bilateral palatal pressure &gt; <span class="font-mono text-inkhi">0.5 N</span> sustained &gt; <span class="font-mono text-inkhi">2 s</span>.</div>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="shrink-0 w-10 h-10 rounded-lg border border-electric/30 bg-electric/10 grid place-items-center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12h4l2-6 4 12 2-6h4" stroke="#3FA9FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="font-medium">Bruxism &amp; clenching</div>
+            <div class="text-inklo text-sm mt-1">Occlusal FSR spike &gt; <span class="font-mono text-inkhi">2 N</span> lasting &gt; <span class="font-mono text-inkhi">0.5 s</span>.</div>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="shrink-0 w-10 h-10 rounded-lg border border-neon/30 bg-neon/10 grid place-items-center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12c4-6 10-6 14 0M5 16c4-4 10-4 14 0" stroke="#39FF9C" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="font-medium">Mouth breathing</div>
+            <div class="text-inklo text-sm mt-1">Absence of palatal pressure &gt; <span class="font-mono text-inkhi">30 s</span> during sleep.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palate heatmap visual -->
+    <div class="rounded-2xl p-6 bg-slatecard border border-white/5 glow-ring">
+      <div class="flex items-center justify-between text-xs text-inklo">
+        <span class="font-mono tracking-widest uppercase">palate_heatmap.live</span>
+        <span class="flex items-center gap-2"><span class="pulse"></span> streaming</span>
+      </div>
+      <svg viewBox="0 0 400 260" class="mt-4 w-full h-auto">
+        <defs>
+          <radialGradient id="p1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#39FF9C" stop-opacity="0.95"/>
+            <stop offset="55%" stop-color="#3FA9FF" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#3FA9FF" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="p2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#3FA9FF" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#3FA9FF" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="palate" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1A2330"/>
+            <stop offset="100%" stop-color="#0F151C"/>
+          </linearGradient>
+        </defs>
+        <!-- palate outline -->
+        <path d="M60 220 C 80 80, 320 80, 340 220 Z" fill="url(#palate)" stroke="#2A3B4F" stroke-width="1.5"/>
+        <!-- teeth marks -->
+        <g stroke="#2A3B4F" stroke-width="1">
+          <path d="M90 210 C 100 160, 120 130, 150 110"/>
+          <path d="M310 210 C 300 160, 280 130, 250 110"/>
+        </g>
+        <!-- pressure blobs -->
+        <circle cx="160" cy="150" r="55" fill="url(#p1)"/>
+        <circle cx="240" cy="150" r="55" fill="url(#p1)"/>
+        <circle cx="200" cy="200" r="28" fill="url(#p2)"/>
+        <!-- labels -->
+        <g font-family="ui-monospace, monospace" font-size="10" fill="#8A9AA6">
+          <text x="120" y="250">L · 0.64 N</text>
+          <text x="250" y="250">R · 0.61 N</text>
+          <text x="170" y="95" fill="#7AD1FF">anterior</text>
+        </g>
+      </svg>
+      <div class="mt-4 flex items-center gap-2 text-xs text-inklo">
+        <span class="w-3 h-3 rounded-sm bg-electric/60"></span> low
+        <span class="w-3 h-3 rounded-sm bg-neon/80 ml-2"></span> engaged
+        <span class="ml-auto font-mono">10 Hz · BLE · NUS</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section id="team" class="relative py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-5 gap-10 items-start">
+    <div class="lg:col-span-3">
+      <span class="chip inline-block text-xs tracking-widest uppercase px-2.5 py-1 rounded-full">Founder note</span>
+      <h2 class="mt-4 text-3xl md:text-4xl font-semibold tracking-tight">Built by one founder, in public, on a hardware budget.</h2>
+      <p class="mt-5 text-inklo leading-relaxed">
+        I'm <span class="text-inkhi font-medium">Wes Gilbert</span> — a solo founder building MorphoGenix as part of Perplexity's
+        <span class="text-inkhi">Billion Dollar Build</span> 8-week company competition. The first prototype is hand-wired on a
+        thermoformed dental shell; the first app is a React Native TestFlight build. The first patents are being filed
+        at the USPTO right now.
+      </p>
+      <p class="mt-4 text-inklo leading-relaxed">
+        If you care about your breathing, your jaw, your face, or just want to know what's actually happening in your mouth all day —
+        I'd like you in the first cohort.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neon/30 bg-neon/5 text-neon text-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.8 6.5 19.5l1-6.3L3 8.9 9 8z" fill="currentColor"/></svg>
+          Patent pending · SOD + Morph-Gel
+        </span>
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-electric/30 bg-electric/5 text-electric text-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Perplexity Billion Dollar Build · 2026
+        </span>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2">
+      <div class="rounded-2xl bg-slatecard border border-white/5 p-6">
+        <div class="text-xs tracking-widest uppercase text-inklo">Build log</div>
+        <ul class="mt-3 space-y-3 text-sm">
+          <li class="flex gap-3"><span class="font-mono text-neon">W1</span><span class="text-inklo">Hardware ordered · PPA audit · app scaffolded</span></li>
+          <li class="flex gap-3"><span class="font-mono text-neon">W2</span><span class="text-inklo">BLE breadboard test · TAM model · clinician outreach</span></li>
+          <li class="flex gap-3"><span class="font-mono text-electric">W3</span><span class="text-inklo">File both PPAs · first BLE-to-phone integration</span></li>
+          <li class="flex gap-3"><span class="font-mono text-electric">W4</span><span class="text-inklo">Calibrated prototype · App v0.5 · first beta users</span></li>
+          <li class="flex gap-3"><span class="font-mono text-inkhi">W5</span><span class="text-inklo">2 demo units · App v1.0 on TestFlight</span></li>
+          <li class="flex gap-3"><span class="font-mono text-inklo">W7</span><span class="text-inklo">Demo video · submit June 2</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WAITLIST ============ -->
+<section id="waitlist" class="relative py-24 border-t border-white/5 bg-slatebg2 overflow-hidden">
+  <div class="absolute inset-x-0 bottom-0 h-full topo opacity-60 pointer-events-none"></div>
+
+  <div class="relative max-w-3xl mx-auto px-6">
+    <div class="text-center">
+      <span class="chip inline-block text-xs tracking-widest uppercase px-2.5 py-1 rounded-full">Beta waitlist</span>
+      <h2 class="mt-4 text-3xl md:text-5xl font-semibold tracking-tight">Get a unit in the first cohort.</h2>
+      <p class="mt-4 text-inklo">Limited units. Early beta members get lifetime data export, founder Slack access, and priority on the v1.0 retainer.</p>
+    </div>
+
+    <form id="waitlist-form" class="mt-10 rounded-2xl bg-slatecard/80 backdrop-blur border border-white/5 p-6 md:p-8 glow-ring">
+      <div class="grid md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs tracking-widest uppercase text-inklo">Email *</span>
+          <input required type="email" name="email" autocomplete="email" placeholder="you@domain.com"
+            class="mt-2 w-full bg-slatebg border border-white/10 rounded-lg px-4 py-3 text-inkhi placeholder:text-inklo/60 focus:outline-none focus:border-neon/60 focus:ring-2 focus:ring-neon/20 transition" />
+        </label>
+        <label class="block">
+          <span class="text-xs tracking-widest uppercase text-inklo">Name</span>
+          <input type="text" name="name" autocomplete="name" placeholder="What should we call you?"
+            class="mt-2 w-full bg-slatebg border border-white/10 rounded-lg px-4 py-3 text-inkhi placeholder:text-inklo/60 focus:outline-none focus:border-electric/60 focus:ring-2 focus:ring-electric/20 transition" />
+        </label>
+      </div>
+
+      <label class="block mt-4">
+        <span class="text-xs tracking-widest uppercase text-inklo">I'm a…</span>
+        <div class="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
+          <!-- Persona chips using native radio inputs -->
+          {% for p in ["Mewer", "Bruxism sufferer", "Mouth breather", "Clinician", "Other"] %}
+          <label class="cursor-pointer">
+            <input type="radio" name="persona" value="{{ p }}" class="peer sr-only" />
+            <div class="text-center text-sm px-3 py-2 rounded-lg border border-white/10 bg-slatebg text-inklo peer-checked:border-neon peer-checked:text-neon peer-checked:bg-neon/5 transition">{{ p }}</div>
+          </label>
+          {% endfor %}
+        </div>
+      </label>
+
+      <label class="block mt-4">
+        <span class="text-xs tracking-widest uppercase text-inklo">What pulled you in? <span class="text-inklo/60 normal-case">(optional)</span></span>
+        <textarea name="reason" rows="3" placeholder="I've been mewing for 2 years and want real feedback…"
+          class="mt-2 w-full bg-slatebg border border-white/10 rounded-lg px-4 py-3 text-inkhi placeholder:text-inklo/60 focus:outline-none focus:border-neon/60 focus:ring-2 focus:ring-neon/20 transition"></textarea>
+      </label>
+
+      <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <button type="submit" id="submit-btn"
+          class="btn-neon w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
+          <span class="label">Claim my spot</span>
+          <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="text-xs text-inklo">No spam. One email when we ship. Data stays in the MorphoGenix Notion — nothing else.</p>
+      </div>
+
+      <!-- Feedback -->
+      <div id="form-msg" class="mt-4 hidden text-sm rounded-lg px-4 py-3"></div>
+    </form>
+
+    {% if not notion_configured %}
+      <p class="mt-4 text-center text-xs text-inklo">
+        <span class="font-mono text-electric">dev mode</span> · Notion not configured — signups log to the console only.
+      </p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-inklo">
+    <div class="flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 32 32" fill="none" class="text-neon">
+        <path d="M4 20 C 10 8, 22 8, 28 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span>© 2026 MorphoGenix — Wes Gilbert</span>
+    </div>
+    <div class="font-mono text-xs">v0.1 · built during Billion Dollar Build · week 2</div>
+  </div>
+</footer>
+
+<script>
+  const form = document.getElementById('waitlist-form');
+  const btn  = document.getElementById('submit-btn');
+  const msg  = document.getElementById('form-msg');
+
+  function showMsg(text, ok) {
+    msg.textContent = text;
+    msg.className = 'mt-4 text-sm rounded-lg px-4 py-3 ' +
+      (ok
+        ? 'bg-neon/10 border border-neon/30 text-neon'
+        : 'bg-red-500/10 border border-red-500/30 text-red-300');
+    msg.classList.remove('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      email:  (fd.get('email')  || '').toString().trim(),
+      name:   (fd.get('name')   || '').toString().trim() || null,
+      persona:(fd.get('persona')|| '').toString().trim() || null,
+      reason: (fd.get('reason') || '').toString().trim() || null,
+    };
+
+    btn.disabled = true;
+    const original = btn.querySelector('.label').textContent;
+    btn.querySelector('.label').textContent = 'Sending…';
+
+    try {
+      const resp = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json();
+      if (resp.ok && data.ok) {
+        showMsg("You're in. We'll reach out when the first cohort opens.", true);
+        form.reset();
+      } else {
+        showMsg(data.message || 'Something went wrong. Try again?', false);
+      }
+    } catch (err) {
+      showMsg('Network error. Try again in a moment.', false);
+    } finally {
+      btn.disabled = false;
+      btn.querySelector('.label').textContent = original;
+    }
+  });
+</script>
+
+</body>
+</html>
