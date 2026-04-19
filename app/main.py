@@ -25,14 +25,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("morphogenix")
 
 BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(title="MorphoGenix", docs_url="/api/docs", redoc_url=None)
 
-app.mount(
-    "/static",
-    StaticFiles(directory=str(BASE_DIR / "static")),
-    name="static",
-)
+# Make sure /static mount never crashes startup if the folder is missing
+# (e.g. a fresh clone on a system that skipped empty dirs).
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
