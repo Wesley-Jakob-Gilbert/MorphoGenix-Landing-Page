@@ -1,6 +1,8 @@
-fastapi==0.115.0
-uvicorn[standard]==0.32.0
-jinja2==3.1.4
-python-dotenv==1.0.1
-httpx==0.27.2
-pydantic[email]==2.9.2
+# Minimum versions that ship Python 3.14 wheels.
+# If you're on Python <=3.13, these still work fine.
+fastapi>=0.118.3
+uvicorn[standard]>=0.40.0
+jinja2>=3.1.4
+python-dotenv>=1.0.1
+httpx>=0.27.2
+pydantic[email]>=2.12.0
