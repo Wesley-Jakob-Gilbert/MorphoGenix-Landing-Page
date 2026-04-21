@@ -105,6 +105,49 @@
       0%, 100% { transform: scaleY(0.35); }
       50%      { transform: scaleY(1); }
     }
+
+    /* ---- Blueprint ---- */
+    .blueprint {
+      background:
+        /* Major grid lines every 40 SVG units */
+        linear-gradient(rgba(63,169,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(63,169,255,0.08) 1px, transparent 1px),
+        /* Minor grid lines every 10 SVG units */
+        linear-gradient(rgba(63,169,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(63,169,255,0.04) 1px, transparent 1px),
+        radial-gradient(ellipse at 30% 20%, rgba(57,255,156,0.06), transparent 60%),
+        #0B1219;
+      background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px, auto, auto;
+      background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px, center, center;
+    }
+    .bp-label { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 9px; fill: #7AD1FF; letter-spacing: 0.08em; }
+    .bp-dim   { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 8px; fill: #8A9AA6; }
+    .bp-title { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 10px; fill: #E6F0EE; letter-spacing: 0.16em; }
+    .bp-stroke { stroke: #3FA9FF; stroke-opacity: 0.75; fill: none; }
+    .bp-stroke-hi { stroke: #7AD1FF; stroke-width: 1.2; fill: none; }
+    .bp-accent { stroke: #39FF9C; stroke-width: 1.1; fill: none; }
+    .bp-dim-line { stroke: #5A6B7A; stroke-width: 0.6; stroke-dasharray: 2 2; fill: none; }
+    .bp-tick { stroke: #5A6B7A; stroke-width: 0.6; }
+    .bp-dot { fill: #39FF9C; }
+    .bp-dot-blue { fill: #3FA9FF; }
+    .bp-leader { stroke: #39FF9C; stroke-width: 0.6; stroke-opacity: 0.6; fill: none; }
+    .bp-leader-blue { stroke: #3FA9FF; stroke-width: 0.6; stroke-opacity: 0.6; fill: none; }
+
+    /* Slow rotation for the 3/4 iso view */
+    @keyframes spinY {
+      0%   { transform: rotateY(-10deg); }
+      50%  { transform: rotateY(10deg); }
+      100% { transform: rotateY(-10deg); }
+    }
+    .iso-spin { transform-origin: center; animation: spinY 9s ease-in-out infinite; transform-style: preserve-3d; }
+
+    /* Sensor ping */
+    @keyframes ping {
+      0%   { r: 2.5; opacity: 1; }
+      80%  { r: 6.5; opacity: 0; }
+      100% { r: 6.5; opacity: 0; }
+    }
+    .ping { animation: ping 2s cubic-bezier(0,0,0.2,1) infinite; }
   </style>
 </head>
 
@@ -136,57 +179,277 @@
   <div class="absolute inset-0 grid-bg opacity-80 pointer-events-none"></div>
   <div class="absolute inset-x-0 bottom-0 h-[60%] topo pointer-events-none"></div>
 
-  <div class="relative max-w-6xl mx-auto px-6 pt-20 pb-28 md:pt-28 md:pb-36">
-    <div class="flex items-center gap-2 mb-6">
-      <span class="pulse"></span>
-      <span class="text-xs tracking-widest uppercase text-inklo">Private beta · closed cohort · limited units</span>
+  <div class="relative max-w-6xl mx-auto px-6 pt-16 pb-24 md:pt-24 md:pb-28">
+    <div class="grid lg:grid-cols-12 gap-10 items-center">
+
+      <!-- LEFT: copy -->
+      <div class="lg:col-span-6">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="pulse"></span>
+          <span class="text-xs tracking-widest uppercase text-inklo">Private beta · closed cohort · limited units</span>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
+          Your face is
+          <span class="relative inline-block">
+            <span class="bg-gradient-to-r from-neon to-electric bg-clip-text text-transparent">a mountain range</span>
+          </span>
+          shaped by millions of tiny signals.
+        </h1>
+
+        <p class="mt-6 max-w-xl text-lg text-inklo leading-relaxed">
+          <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
+          tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
+          <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
+        </p>
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href="#waitlist" class="btn-neon inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
+            Join the beta waitlist
+            <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#how" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border border-white/10 hover:border-neon/60 hover:text-neon transition">
+            See how it works
+          </a>
+        </div>
+
+        <!-- Live readout strip -->
+        <div class="mt-10 grid grid-cols-2 gap-3 max-w-md">
+          <div class="rounded-xl border border-white/5 bg-slatecard/60 p-3">
+            <div class="text-[10px] tracking-widest uppercase text-inklo">Posture score</div>
+            <div class="mt-1 font-mono text-xl text-neon">87<span class="text-inklo text-sm">/100</span></div>
+          </div>
+          <div class="rounded-xl border border-white/5 bg-slatecard/60 p-3">
+            <div class="text-[10px] tracking-widest uppercase text-inklo">Palatal pressure</div>
+            <div class="mt-1 font-mono text-xl text-electric">0.62 N</div>
+          </div>
+          <div class="rounded-xl border border-white/5 bg-slatecard/60 p-3">
+            <div class="text-[10px] tracking-widest uppercase text-inklo">Clench events</div>
+            <div class="mt-1 font-mono text-xl text-inkhi">3<span class="text-inklo text-sm"> /hr</span></div>
+          </div>
+          <div class="rounded-xl border border-white/5 bg-slatecard/60 p-3">
+            <div class="text-[10px] tracking-widest uppercase text-inklo">Nasal breathing</div>
+            <div class="mt-1 font-mono text-xl text-neon">94<span class="text-inklo text-sm">%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: blueprint -->
+      <div class="lg:col-span-6">
+        <div class="rounded-2xl overflow-hidden border border-electric/20 glow-ring">
+          <!-- Title bar (faux CAD window chrome) -->
+          <div class="flex items-center justify-between px-4 py-2 bg-slatecard/80 border-b border-electric/15">
+            <div class="flex items-center gap-2 text-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-neon"></span>
+              <span class="font-mono tracking-widest uppercase text-inklo">sod-v0.1.step</span>
+            </div>
+            <div class="hidden sm:flex items-center gap-4 font-mono text-[10px] text-inklo">
+              <span>SHEET 1/1</span>
+              <span>SCALE 2:1</span>
+              <span class="text-neon">● REVIEW</span>
+            </div>
+          </div>
+
+          <!-- Blueprint canvas -->
+          <div class="blueprint relative">
+            <svg viewBox="0 0 620 640" class="w-full h-auto block" aria-label="MorphoGenix device blueprint — top, side, and iso views">
+              <defs>
+                <!-- Arrow marker for dimension lines -->
+                <marker id="arrL" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M0 0 L8 4 L0 8 z" fill="#5A6B7A"/>
+                </marker>
+                <marker id="arrR" viewBox="0 0 8 8" refX="1" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M8 0 L0 4 L8 8 z" fill="#5A6B7A"/>
+                </marker>
+                <!-- Subtle glow for the neon sensor dots -->
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="b"/>
+                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+
+              <!-- ================= TOP VIEW ================= -->
+              <g transform="translate(20,20)">
+                <text x="0" y="12" class="bp-title">TOP VIEW · PALATAL</text>
+                <text x="0" y="26" class="bp-dim">occlusal plane, superior aspect</text>
+
+                <!-- Dental arch outer -->
+                <path d="M 40 220 C 60 70, 340 70, 360 220
+                         L 330 225 C 315 90, 85 90, 70 225 Z"
+                      class="bp-stroke-hi"/>
+                <!-- Inner palate surface -->
+                <path d="M 80 215 C 95 100, 305 100, 320 215"
+                      class="bp-stroke" stroke-dasharray="3 2"/>
+
+                <!-- Sensor: Palatal L -->
+                <circle cx="130" cy="150" r="9" class="bp-accent"/>
+                <circle cx="130" cy="150" r="3" class="bp-dot" filter="url(#glow)"/>
+                <circle cx="130" cy="150" r="3" class="bp-dot ping"/>
+                <!-- Sensor: Palatal R -->
+                <circle cx="270" cy="150" r="9" class="bp-accent"/>
+                <circle cx="270" cy="150" r="3" class="bp-dot" filter="url(#glow)"/>
+                <circle cx="270" cy="150" r="3" class="bp-dot ping" style="animation-delay:.5s"/>
+                <!-- Sensor: Occlusal (rear molar) -->
+                <rect x="315" y="195" width="14" height="10" class="bp-stroke" stroke="#3FA9FF"/>
+                <circle cx="322" cy="200" r="2" class="bp-dot-blue" filter="url(#glow)"/>
+
+                <!-- MCU + battery pocket (posterior) -->
+                <rect x="160" y="50" width="80" height="28" rx="3" class="bp-stroke"/>
+                <line x1="175" y1="50" x2="175" y2="78" class="bp-stroke"/>
+                <line x1="225" y1="50" x2="225" y2="78" class="bp-stroke"/>
+                <text x="200" y="68" text-anchor="middle" class="bp-dim">MCU + LiPo</text>
+
+                <!-- Leader lines + callouts (stacked vertically, generous spacing) -->
+                <path d="M 200 64 L 405 64" class="bp-leader"/>
+                <text x="410" y="62" class="bp-label">04 · nRF52840 + 100mAh</text>
+                <text x="410" y="74" class="bp-dim">BLE · NUS · 10 Hz</text>
+
+                <path d="M 130 150 L 130 102 L 405 102" class="bp-leader"/>
+                <text x="410" y="100" class="bp-label">01 · FSR_PALATE_L</text>
+                <text x="410" y="112" class="bp-dim">Interlink 402 · 0.1–10 N</text>
+
+                <path d="M 270 150 L 360 150 L 360 140 L 405 140" class="bp-leader"/>
+                <text x="410" y="138" class="bp-label">02 · FSR_PALATE_R</text>
+                <text x="410" y="150" class="bp-dim">Interlink 402 · 0.1–10 N</text>
+
+                <path d="M 322 200 L 405 200 L 405 178" class="bp-leader-blue"/>
+                <text x="410" y="176" class="bp-label" fill="#7AD1FF">03 · FSR_OCCLUSAL</text>
+                <text x="410" y="188" class="bp-dim">Interlink 406 · 0–20 N</text>
+
+                <!-- Width dimension (arch) -->
+                <line x1="40" y1="240" x2="360" y2="240" class="bp-dim-line" marker-start="url(#arrR)" marker-end="url(#arrL)"/>
+                <line x1="40" y1="235" x2="40" y2="248" class="bp-tick"/>
+                <line x1="360" y1="235" x2="360" y2="248" class="bp-tick"/>
+                <text x="200" y="254" text-anchor="middle" class="bp-dim">Ø 58.0 mm</text>
+
+                <!-- Axes compass -->
+                <g transform="translate(20,230)">
+                  <line x1="0" y1="0" x2="16" y2="0" stroke="#7AD1FF" stroke-width="1"/>
+                  <line x1="0" y1="0" x2="0" y2="-16" stroke="#39FF9C" stroke-width="1"/>
+                  <text x="19" y="3" class="bp-dim" fill="#7AD1FF">X</text>
+                  <text x="-3" y="-20" class="bp-dim" fill="#39FF9C">Y</text>
+                </g>
+              </g>
+
+              <!-- Section divider -->
+              <line x1="20" y1="298" x2="600" y2="298" stroke="#1A2330" stroke-width="1"/>
+              <text x="30" y="294" class="bp-dim">— — —</text>
+
+              <!-- ================= SIDE VIEW ================= -->
+              <g transform="translate(20,310)">
+                <text x="0" y="12" class="bp-title">SIDE VIEW · SAGITTAL SECTION A-A</text>
+                <text x="0" y="26" class="bp-dim">2.1 mm thermoformed EVA shell</text>
+
+                <!-- Shell outline (U shape in profile) -->
+                <path d="M 40 110 C 40 55, 220 28, 310 65 L 310 97 C 225 63, 55 88, 55 110 Z" class="bp-stroke-hi"/>
+                <!-- Palate ridge (inner) -->
+                <path d="M 60 106 C 100 75, 220 53, 300 81" class="bp-stroke" stroke-dasharray="3 2"/>
+
+                <!-- Embedded sensor (cross section) -->
+                <rect x="150" y="61" width="16" height="7" class="bp-accent"/>
+                <circle cx="158" cy="64" r="2" class="bp-dot"/>
+                <!-- Embedded MCU -->
+                <rect x="200" y="55" width="46" height="10" rx="1" class="bp-stroke"/>
+                <!-- Battery -->
+                <rect x="252" y="57" width="30" height="6" rx="1" class="bp-stroke"/>
+
+                <!-- Leaders (all routed right to a column of labels) -->
+                <path d="M 158 61 L 158 42 L 405 42" class="bp-leader"/>
+                <text x="410" y="40" class="bp-label">FSR embedded</text>
+                <text x="410" y="52" class="bp-dim">silicone-potted</text>
+
+                <path d="M 223 55 L 223 72 L 405 72" class="bp-leader"/>
+                <text x="410" y="70" class="bp-label">nRF52840 MCU</text>
+                <text x="410" y="82" class="bp-dim">SparkFun Pro Mini</text>
+
+                <path d="M 267 63 L 267 102 L 405 102" class="bp-leader"/>
+                <text x="410" y="100" class="bp-label">100 mAh LiPo</text>
+                <text x="410" y="112" class="bp-dim">~6 h runtime</text>
+
+                <!-- Height dimension (left side) -->
+                <line x1="28" y1="40" x2="28" y2="108" class="bp-dim-line" marker-start="url(#arrR)" marker-end="url(#arrL)"/>
+                <text x="10" y="78" class="bp-dim">h 12 mm</text>
+
+                <!-- Length dimension (below) -->
+                <line x1="40" y1="125" x2="310" y2="125" class="bp-dim-line" marker-start="url(#arrR)" marker-end="url(#arrL)"/>
+                <line x1="40" y1="120" x2="40" y2="130" class="bp-tick"/>
+                <line x1="310" y1="120" x2="310" y2="130" class="bp-tick"/>
+                <text x="175" y="140" text-anchor="middle" class="bp-dim">L 52.0 mm</text>
+              </g>
+
+              <!-- ================= ISO VIEW ================= -->
+              <g transform="translate(20,470)">
+                <text x="0" y="12" class="bp-title">ISOMETRIC · 3/4 VIEW</text>
+                <text x="0" y="26" class="bp-dim">projection 30° / 30°</text>
+
+                <!-- Iso drawing — centered on the right half, smaller, doesn't rotate (keeps it legible) -->
+                <g transform="translate(420,85) scale(0.78)">
+                  <!-- Base palate plate -->
+                  <path d="M -110 0 L -40 -42 L 40 -42 L 110 0 L 40 42 L -40 42 Z"
+                        fill="#0F1923" stroke="#7AD1FF" stroke-width="1"/>
+                  <!-- Arch raised band -->
+                  <path d="M -90 -8 C -60 -40, 60 -40, 90 -8 L 60 2 C 40 -22, -40 -22, -60 2 Z"
+                        fill="#16202A" stroke="#3FA9FF" stroke-width="1"/>
+                  <!-- Top surface highlight -->
+                  <path d="M -90 -8 C -60 -40, 60 -40, 90 -8" fill="none" stroke="#7AD1FF" stroke-width="1"/>
+                  <!-- Sensor bumps (top face) -->
+                  <ellipse cx="-40" cy="-20" rx="6" ry="2.5" fill="#39FF9C" filter="url(#glow)"/>
+                  <ellipse cx="40" cy="-20" rx="6" ry="2.5" fill="#39FF9C" filter="url(#glow)"/>
+                  <!-- Rear MCU pod -->
+                  <rect x="-18" y="-34" width="36" height="10" rx="2" fill="#0A0F14" stroke="#3FA9FF"/>
+                  <circle cx="14" cy="-29" r="1.5" fill="#39FF9C"/>
+                  <!-- BLE wave -->
+                  <path d="M 14 -35 Q 22 -44, 30 -40" stroke="#39FF9C" fill="none" stroke-width="1" opacity="0.9"/>
+                  <path d="M 14 -35 Q 26 -52, 40 -45" stroke="#39FF9C" fill="none" stroke-width="1" opacity="0.55"/>
+                  <path d="M 14 -35 Q 30 -60, 52 -50" stroke="#39FF9C" fill="none" stroke-width="1" opacity="0.25"/>
+                </g>
+
+                <!-- Iso spec sheet on the left -->
+                <text x="0" y="60" class="bp-label">MAT · EVA (USP VI)</text>
+                <text x="0" y="72" class="bp-dim">silicone potted</text>
+
+                <text x="0" y="92" class="bp-label">WEIGHT · 4.8 g</text>
+                <text x="0" y="104" class="bp-dim">w/ battery &amp; PCB</text>
+
+                <text x="0" y="124" class="bp-label">WIRELESS · BLE 5.0</text>
+                <text x="0" y="136" class="bp-dim">Nordic UART · 10 Hz</text>
+              </g>
+
+              <!-- ================= TITLE BLOCK (bottom right corner) ================= -->
+              <g transform="translate(360,598)">
+                <rect x="0" y="-22" width="220" height="30" fill="rgba(15,25,35,0.85)" stroke="#2A3B4F"/>
+                <line x1="70" y1="-22" x2="70" y2="8" stroke="#2A3B4F"/>
+                <line x1="145" y1="-22" x2="145" y2="8" stroke="#2A3B4F"/>
+                <text x="4" y="-10" class="bp-dim">PART</text>
+                <text x="4" y="2"  class="bp-label">SOD-v0.1</text>
+                <text x="74" y="-10" class="bp-dim">DRAWN</text>
+                <text x="74" y="2"  class="bp-label">W. GILBERT</text>
+                <text x="149" y="-10" class="bp-dim">REV</text>
+                <text x="149" y="2"  class="bp-label">2026-04-A</text>
+              </g>
+
+              <!-- Corner frame ticks -->
+              <g stroke="#2A3B4F" stroke-width="1" fill="none">
+                <path d="M 10 10 L 30 10 M 10 10 L 10 30"/>
+                <path d="M 610 10 L 590 10 M 610 10 L 610 30"/>
+                <path d="M 10 630 L 30 630 M 10 630 L 10 610"/>
+                <path d="M 610 630 L 590 630 M 610 630 L 610 610"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Footer strip -->
+          <div class="flex items-center justify-between px-4 py-2 bg-slatecard/80 border-t border-electric/15 text-[10px] font-mono text-inklo">
+            <span>MORPHOGENIX · SMART ORAL DEVICE</span>
+            <span class="hidden sm:inline">DWG-001 · CONFIDENTIAL</span>
+            <span class="text-neon">PATENT PENDING</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
-      Your face is
-      <span class="relative inline-block">
-        <span class="bg-gradient-to-r from-neon to-electric bg-clip-text text-transparent">a mountain range</span>
-      </span>
-      <br class="hidden md:block"/>shaped by millions of tiny signals.
-    </h1>
-
-    <p class="mt-6 max-w-2xl text-lg text-inklo leading-relaxed">
-      <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
-      tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
-      <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
-    </p>
-
-    <div class="mt-10 flex flex-col sm:flex-row gap-3">
-      <a href="#waitlist" class="btn-neon inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
-        Join the beta waitlist
-        <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a href="#how" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border border-white/10 hover:border-neon/60 hover:text-neon transition">
-        See how it works
-      </a>
-    </div>
-
-    <!-- Live readout strip -->
-    <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
-      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
-        <div class="text-[11px] tracking-widest uppercase text-inklo">Posture score</div>
-        <div class="mt-1 font-mono text-2xl text-neon">87<span class="text-inklo text-base">/100</span></div>
-      </div>
-      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
-        <div class="text-[11px] tracking-widest uppercase text-inklo">Palatal pressure</div>
-        <div class="mt-1 font-mono text-2xl text-electric">0.62 N</div>
-      </div>
-      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
-        <div class="text-[11px] tracking-widest uppercase text-inklo">Clench events</div>
-        <div class="mt-1 font-mono text-2xl text-inkhi">3<span class="text-inklo text-base"> /hr</span></div>
-      </div>
-      <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
-        <div class="text-[11px] tracking-widest uppercase text-inklo">Nasal breathing</div>
-        <div class="mt-1 font-mono text-2xl text-neon">94<span class="text-inklo text-base">%</span></div>
-      </div>
-    </div>
-
-    <div class="mt-6 flex items-end gap-1 h-10" aria-hidden="true">
+    <!-- Data-viz ticker bars, full-width under both columns -->
+    <div class="mt-10 flex items-end gap-1 h-8 opacity-80" aria-hidden="true">
       <div class="bar h-full" style="animation-delay:.0s"></div>
       <div class="bar h-full" style="animation-delay:.1s"></div>
       <div class="bar h-full" style="animation-delay:.2s"></div>
