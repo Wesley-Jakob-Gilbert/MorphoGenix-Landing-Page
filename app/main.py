@@ -8,7 +8,6 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
@@ -41,9 +40,9 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "notion_configured": bool(
                 os.environ.get("NOTION_TOKEN")
                 and os.environ.get("NOTION_DATABASE_ID")
@@ -55,9 +54,9 @@ async def index(request: Request):
 # ---------- Waitlist API ----------
 class WaitlistSignup(BaseModel):
     email: EmailStr
-    name: Optional[str] = Field(default=None, max_length=120)
-    reason: Optional[str] = Field(default=None, max_length=600)
-    persona: Optional[str] = Field(default=None, max_length=40)
+    name: str | None = Field(default=None, max_length=120)
+    reason: str | None = Field(default=None, max_length=600)
+    persona: str | None = Field(default=None, max_length=40)
 
 
 ALLOWED_PERSONAS = {

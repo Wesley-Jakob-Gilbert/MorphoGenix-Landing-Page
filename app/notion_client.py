@@ -5,7 +5,6 @@ Keeps the dependency surface tiny (just httpx) and is easy to swap out later.
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 import httpx
 
@@ -20,9 +19,9 @@ class NotionError(Exception):
 async def add_waitlist_signup(
     *,
     email: str,
-    name: Optional[str] = None,
-    reason: Optional[str] = None,
-    persona: Optional[str] = None,
+    name: str | None = None,
+    reason: str | None = None,
+    persona: str | None = None,
     source: str = "Landing Page",
 ) -> dict:
     """Append a new signup row to the MorphoGenix Beta Waitlist database.

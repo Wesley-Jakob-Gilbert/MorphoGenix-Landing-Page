@@ -27,3 +27,6 @@ dist/
 
 # Logs
 *.log
+
+# Playwright / browser testing artifacts
+.playwright-mcp/
