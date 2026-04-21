@@ -687,6 +687,29 @@
           class="mt-2 w-full bg-slatebg border border-white/10 rounded-lg px-4 py-3 text-inkhi placeholder:text-inklo/60 focus:outline-none focus:border-neon/60 focus:ring-2 focus:ring-neon/20 transition"></textarea>
       </label>
 
+      <!-- Honeypot — bots fill every field; kept off-screen so humans never see it. -->
+      <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+        <label>Website (leave blank)
+          <input type="text" name="website" tabindex="-1" autocomplete="off" />
+        </label>
+      </div>
+
+      <!-- Cloudflare Turnstile (rendered only if a site key is configured). -->
+      {% if turnstile_site_key %}
+      <div class="mt-6 cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="dark"></div>
+      {% endif %}
+
+      <!-- Consent — required. -->
+      <label class="mt-6 flex items-start gap-3 text-sm text-inklo">
+        <input required type="checkbox" name="consent" value="1" class="mt-1 accent-neon" />
+        <span>
+          I agree to be contacted about the MorphoGenix beta and have read the
+          <a href="/privacy" class="text-electric underline hover:text-neon">privacy notice</a>.
+          You can withdraw consent any time by emailing
+          <a href="mailto:privacy@morphogenix.com" class="text-electric underline hover:text-neon">privacy@morphogenix.com</a>.
+        </span>
+      </label>
+
       <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <button type="submit" id="submit-btn"
           class="btn-neon w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
@@ -717,59 +740,17 @@
       </svg>
       <span>© 2026 MorphoGenix — Wes Gilbert</span>
     </div>
-    <div class="font-mono text-xs">v0.1 · built during Billion Dollar Build · week 2</div>
+    <div class="flex items-center gap-4">
+      <a href="/privacy" class="hover:text-inkhi">Privacy</a>
+      <span class="font-mono text-xs">v0.1 · built during Billion Dollar Build · week 2</span>
+    </div>
   </div>
 </footer>
 
-<script>
-  const form = document.getElementById('waitlist-form');
-  const btn  = document.getElementById('submit-btn');
-  const msg  = document.getElementById('form-msg');
-
-  function showMsg(text, ok) {
-    msg.textContent = text;
-    msg.className = 'mt-4 text-sm rounded-lg px-4 py-3 ' +
-      (ok
-        ? 'bg-neon/10 border border-neon/30 text-neon'
-        : 'bg-red-500/10 border border-red-500/30 text-red-300');
-    msg.classList.remove('hidden');
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    const payload = {
-      email:  (fd.get('email')  || '').toString().trim(),
-      name:   (fd.get('name')   || '').toString().trim() || null,
-      persona:(fd.get('persona')|| '').toString().trim() || null,
-      reason: (fd.get('reason') || '').toString().trim() || null,
-    };
-
-    btn.disabled = true;
-    const original = btn.querySelector('.label').textContent;
-    btn.querySelector('.label').textContent = 'Sending…';
-
-    try {
-      const resp = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      if (resp.ok && data.ok) {
-        showMsg("You're in. We'll reach out when the first cohort opens.", true);
-        form.reset();
-      } else {
-        showMsg(data.message || 'Something went wrong. Try again?', false);
-      }
-    } catch (err) {
-      showMsg('Network error. Try again in a moment.', false);
-    } finally {
-      btn.disabled = false;
-      btn.querySelector('.label').textContent = original;
-    }
-  });
-</script>
+{% if turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+<script src="/static/app.js" defer></script>
 
 </body>
 </html>

@@ -2,31 +2,145 @@
 
 Run locally:
     uvicorn app.main:app --reload --port 8000
+
+Production is deployed on Fly.io — see fly.toml and Dockerfile. Behind the
+Fly edge, uvicorn is started with --proxy-headers so X-Forwarded-For is
+trusted for rate-limit keying.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 from pathlib import Path
 
+import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .notion_client import NotionError, add_waitlist_signup
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+# ---------- Config ----------
+APP_ENV = os.environ.get("APP_ENV", "development").lower()
+IS_PROD = APP_ENV == "production"
+
+# Comma-separated list of hosts this app will answer for.
+# Example: ALLOWED_HOSTS="morphogenix.com,www.morphogenix.com,morphogenix-landing.fly.dev"
+_default_hosts = "morphogenix.com,www.morphogenix.com,*.fly.dev"
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get("ALLOWED_HOSTS", _default_hosts).split(",")
+    if h.strip()
+]
+
+# Cloudflare Turnstile — optional bot protection.
+TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "")
+TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+# ---------- Logging ----------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 logger = logging.getLogger("morphogenix")
 
+
+def _redact_email(email: str) -> str:
+    """Return a non-reversible tag like 'ab***@example.com' for logging.
+
+    Never log raw PII (email, name, reason) to stdout — on Fly that stream
+    lands in a log aggregator with its own retention and is hard to purge
+    for a GDPR subject-access request.
+    """
+    if not email or "@" not in email:
+        return "<invalid>"
+    local, _, domain = email.partition("@")
+    prefix = local[:2] if len(local) >= 2 else local
+    digest = hashlib.sha256(email.lower().encode()).hexdigest()[:8]
+    return f"{prefix}***@{domain}#{digest}"
+
+
+# ---------- App ----------
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 
-app = FastAPI(title="MorphoGenix", docs_url="/api/docs", redoc_url=None)
+app = FastAPI(
+    title="MorphoGenix",
+    # Hide interactive docs and the OpenAPI schema in production.
+    docs_url=None if IS_PROD else "/api/docs",
+    redoc_url=None,
+    openapi_url=None if IS_PROD else "/openapi.json",
+)
+
+# Rate limiting. Default key is the client IP from X-Forwarded-For (we run
+# with uvicorn --proxy-headers so Fly's edge headers are trusted).
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
+# Reject requests with a Host header we don't serve (cache-poisoning hardening).
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "ok": False,
+            "message": "Too many requests. Please slow down and try again shortly.",
+        },
+    )
+
+
+# Minimal security headers. CSP allows the Tailwind CDN + Turnstile script
+# for now; tighten further once Tailwind is built locally.
+_CSP_SCRIPT_SRC = "'self' https://cdn.tailwindcss.com https://challenges.cloudflare.com"
+_CSP_FRAME_SRC = "https://challenges.cloudflare.com"
+_CSP = (
+    "default-src 'self'; "
+    f"script-src {_CSP_SCRIPT_SRC}; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self' data:; "
+    "connect-src 'self' https://challenges.cloudflare.com; "
+    f"frame-src {_CSP_FRAME_SRC}; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self'; "
+    "object-src 'none'"
+)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    resp.headers.setdefault(
+        "Strict-Transport-Security",
+        "max-age=63072000; includeSubDomains; preload",
+    )
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    resp.headers.setdefault(
+        "Permissions-Policy",
+        "geolocation=(), microphone=(), camera=(), interest-cohort=()",
+    )
+    resp.headers.setdefault("Content-Security-Policy", _CSP)
+    return resp
+
 
 # Make sure /static mount never crashes startup if the folder is missing
 # (e.g. a fresh clone on a system that skipped empty dirs).
@@ -36,27 +150,40 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
-# ---------- Landing page ----------
+def _notion_configured() -> bool:
+    return bool(os.environ.get("NOTION_TOKEN") and os.environ.get("NOTION_DATABASE_ID"))
+
+
+# ---------- Pages ----------
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse(
         request,
         "index.html",
         {
-            "notion_configured": bool(
-                os.environ.get("NOTION_TOKEN")
-                and os.environ.get("NOTION_DATABASE_ID")
-            ),
+            "notion_configured": _notion_configured(),
+            "turnstile_site_key": TURNSTILE_SITE_KEY,
         },
     )
 
 
+@app.get("/privacy")
+async def privacy(request: Request):
+    return templates.TemplateResponse(request, "privacy.html", {})
+
+
 # ---------- Waitlist API ----------
 class WaitlistSignup(BaseModel):
-    email: EmailStr
+    email: EmailStr = Field(max_length=254)
     name: str | None = Field(default=None, max_length=120)
     reason: str | None = Field(default=None, max_length=600)
     persona: str | None = Field(default=None, max_length=40)
+    # Honeypot — must stay empty. Humans never see this field.
+    website: str | None = Field(default=None, max_length=200)
+    # Cloudflare Turnstile token (optional; only enforced if TURNSTILE_SECRET_KEY is set).
+    turnstile_token: str | None = Field(default=None, max_length=4096)
+    # Client-reported ms between page load and submit. Used as a soft bot signal.
+    elapsed_ms: int | None = Field(default=None, ge=0, le=24 * 60 * 60 * 1000)
 
 
 ALLOWED_PERSONAS = {
@@ -68,18 +195,80 @@ ALLOWED_PERSONAS = {
 }
 
 
-@app.post("/api/waitlist")
-async def waitlist(signup: WaitlistSignup):
-    persona = signup.persona if signup.persona in ALLOWED_PERSONAS else None
+async def _verify_turnstile(token: str, client_ip: str | None) -> bool:
+    """Verify a Turnstile token with Cloudflare. Returns True on success.
 
-    # If Notion is not configured (local dev without secrets), log and succeed
-    # so the frontend UX can still be exercised.
-    if not (os.environ.get("NOTION_TOKEN") and os.environ.get("NOTION_DATABASE_ID")):
+    If TURNSTILE_SECRET_KEY is unset, Turnstile is considered disabled and we
+    return True (so local dev still works). In production, set the secret.
+    """
+    if not TURNSTILE_SECRET_KEY:
+        return True
+    if not token:
+        return False
+    data = {"secret": TURNSTILE_SECRET_KEY, "response": token}
+    if client_ip:
+        data["remoteip"] = client_ip
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.post(TURNSTILE_VERIFY_URL, data=data)
+            body = resp.json()
+        return bool(body.get("success"))
+    except Exception as exc:  # noqa: BLE001 — fail closed, log no PII
+        logger.warning("Turnstile verification error: %s", exc)
+        return False
+
+
+@app.post("/api/waitlist")
+@limiter.limit("5/minute;20/hour")
+async def waitlist(request: Request, signup: WaitlistSignup):
+    # 1. Honeypot — bots fill every field; humans never see it.
+    if signup.website:
+        logger.info("Rejecting waitlist signup: honeypot filled (%s)",
+                    _redact_email(signup.email))
+        # Return a 200 so bots don't learn this was a trap.
+        return JSONResponse({"ok": True, "stored": False, "message": "Thanks."})
+
+    # 2. Minimum time on page (very fast submits are almost always bots).
+    if signup.elapsed_ms is not None and signup.elapsed_ms < 1500:
+        logger.info("Rejecting waitlist signup: too fast (%sms, %s)",
+                    signup.elapsed_ms, _redact_email(signup.email))
+        return JSONResponse({"ok": True, "stored": False, "message": "Thanks."})
+
+    # 3. Turnstile (no-op if unconfigured).
+    client_ip = get_remote_address(request)
+    if not await _verify_turnstile(signup.turnstile_token or "", client_ip):
+        logger.info("Rejecting waitlist signup: turnstile failed (%s)",
+                    _redact_email(signup.email))
+        return JSONResponse(
+            status_code=400,
+            content={
+                "ok": False,
+                "message": "Human check failed. Please refresh and try again.",
+            },
+        )
+
+    persona = signup.persona if signup.persona in ALLOWED_PERSONAS else None
+    email_normalized = signup.email.lower().strip()
+
+    # In production, silent data loss is unacceptable — fail loud.
+    if not _notion_configured():
+        if IS_PROD:
+            logger.error(
+                "Notion is not configured in production. Refusing signup (%s).",
+                _redact_email(email_normalized),
+            )
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "ok": False,
+                    "message": "Signups are temporarily unavailable. Please try again soon.",
+                },
+            )
+        # Local dev affordance: accept the submission so the UX can be exercised,
+        # but never log raw PII.
         logger.warning(
-            "Waitlist signup received but Notion is not configured. "
-            "Signup: email=%s name=%s persona=%s",
-            signup.email,
-            signup.name,
+            "Dev-mode signup (Notion not configured): email=%s persona=%s",
+            _redact_email(email_normalized),
             persona,
         )
         return JSONResponse(
@@ -92,14 +281,18 @@ async def waitlist(signup: WaitlistSignup):
 
     try:
         await add_waitlist_signup(
-            email=signup.email,
+            email=email_normalized,
             name=signup.name,
             reason=signup.reason,
             persona=persona,
             source="Landing Page",
         )
     except NotionError as exc:
-        logger.exception("Failed to write signup to Notion: %s", exc)
+        logger.exception(
+            "Failed to write signup to Notion for %s: %s",
+            _redact_email(email_normalized),
+            exc,
+        )
         return JSONResponse(
             status_code=502,
             content={

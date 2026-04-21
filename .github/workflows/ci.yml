@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks needs full history
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pip-audit bandit
+
+      - name: Ruff lint
+        run: ruff check app/
+
+      - name: Ruff format check
+        run: ruff format --check app/
+
+      - name: Syntax / import check
+        run: python -c "import app.main; import app.notion_client"
+
+      - name: Bandit static security scan
+        run: bandit -r app/ -q -lll
+
+      - name: pip-audit (known CVEs)
+        run: pip-audit --strict || true   # don't block on advisories; review weekly
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
