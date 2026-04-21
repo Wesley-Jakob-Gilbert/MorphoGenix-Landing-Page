@@ -57,7 +57,7 @@ app/
 
 ## Frontend
 
-`index.html` has no framework or bundler — all styling is Tailwind via CDN with custom design tokens declared in the `tailwind.config` block. Custom tokens:
+`index.html` has no framework or bundler — all styling is Tailwind via CDN; Three.js is loaded via an importmap (also CDN, no build step). Custom Tailwind tokens:
 
 | Token | Value | Role |
 |---|---|---|
@@ -68,6 +68,12 @@ app/
 | `inklo` | `#8A9AA6` | low-emphasis text |
 
 Form submission uses `fetch` with JSON; the JS handles success/error states inline.
+
+### 3D hero viewer
+
+A Three.js scene renders in the hero section (`#device-canvas` / `#device-wrap`). It tries to load `/static/device.glb` at startup; if the file doesn't exist it renders a placeholder retainer geometry. Drop `device.glb` (exported from Blender as GLTF Binary) into `app/static/` and reload — no code changes needed.
+
+**Spin math** (bottom of `index.html`): `ω(t) = W_BASE + W_PEAK · sin¹²(π · φ)` where `φ = (t mod T) / T`. The `sin¹²` exponent creates a narrow Gaussian-like bell — long periods of slow drift (`W_BASE ≈ 0.12 rad/s`) with one fast burst (`W_PEAK ≈ 3.8 rad/s`) per cycle (`T = 14 s`). Tune those three constants to adjust the feel.
 
 ## Linting
 

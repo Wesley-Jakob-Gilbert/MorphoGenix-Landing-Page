@@ -34,6 +34,16 @@
     };
   </script>
 
+  <!-- Three.js module imports (no build step) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+
   <style>
     html { scroll-behavior: smooth; }
     body {
@@ -105,6 +115,13 @@
       0%, 100% { transform: scaleY(0.35); }
       50%      { transform: scaleY(1); }
     }
+
+    /* 3D canvas container glow */
+    #device-wrap {
+      background: radial-gradient(ellipse at center, rgba(57,255,156,0.04) 0%, rgba(63,169,255,0.03) 50%, transparent 75%);
+      border: 1px solid rgba(57,255,156,0.12);
+      border-radius: 1.5rem;
+    }
   </style>
 </head>
 
@@ -136,37 +153,51 @@
   <div class="absolute inset-0 grid-bg opacity-80 pointer-events-none"></div>
   <div class="absolute inset-x-0 bottom-0 h-[60%] topo pointer-events-none"></div>
 
-  <div class="relative max-w-6xl mx-auto px-6 pt-20 pb-28 md:pt-28 md:pb-36">
-    <div class="flex items-center gap-2 mb-6">
-      <span class="pulse"></span>
-      <span class="text-xs tracking-widest uppercase text-inklo">Private beta · closed cohort · limited units</span>
+  <div class="relative max-w-6xl mx-auto px-6 pt-20 pb-20 md:pt-24 md:pb-28">
+
+    <!-- Two-column: text left, 3D right -->
+    <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+      <!-- Left: headline + CTAs -->
+      <div>
+        <div class="flex items-center gap-2 mb-6">
+          <span class="pulse"></span>
+          <span class="text-xs tracking-widest uppercase text-inklo">Private beta · closed cohort · limited units</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
+          Your face is
+          <span class="relative inline-block">
+            <span class="bg-gradient-to-r from-neon to-electric bg-clip-text text-transparent">a mountain range</span>
+          </span>
+          <br class="hidden md:block"/>shaped by millions of tiny signals.
+        </h1>
+
+        <p class="mt-6 max-w-2xl text-lg text-inklo leading-relaxed">
+          <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
+          tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
+          <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
+        </p>
+
+        <div class="mt-10 flex flex-col sm:flex-row gap-3">
+          <a href="#waitlist" class="btn-neon inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
+            Join the beta waitlist
+            <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#how" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border border-white/10 hover:border-neon/60 hover:text-neon transition">
+            See how it works
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: 3D device viewer -->
+      <div id="device-wrap" class="relative w-full aspect-square max-w-sm mx-auto lg:max-w-none">
+        <canvas id="device-canvas" style="display:block;width:100%;height:100%"></canvas>
+      </div>
+
     </div>
 
-    <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
-      Your face is
-      <span class="relative inline-block">
-        <span class="bg-gradient-to-r from-neon to-electric bg-clip-text text-transparent">a mountain range</span>
-      </span>
-      <br class="hidden md:block"/>shaped by millions of tiny signals.
-    </h1>
-
-    <p class="mt-6 max-w-2xl text-lg text-inklo leading-relaxed">
-      <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
-      tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
-      <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
-    </p>
-
-    <div class="mt-10 flex flex-col sm:flex-row gap-3">
-      <a href="#waitlist" class="btn-neon inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold">
-        Join the beta waitlist
-        <svg class="ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a href="#how" class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border border-white/10 hover:border-neon/60 hover:text-neon transition">
-        See how it works
-      </a>
-    </div>
-
-    <!-- Live readout strip -->
+    <!-- Live readout strip — full width below the two columns -->
     <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
       <div class="rounded-xl border border-white/5 bg-slatecard/60 p-4">
         <div class="text-[11px] tracking-widest uppercase text-inklo">Posture score</div>
@@ -458,6 +489,7 @@
   </div>
 </footer>
 
+<!-- ============ WAITLIST FORM JS ============ -->
 <script>
   const form = document.getElementById('waitlist-form');
   const btn  = document.getElementById('submit-btn');
@@ -506,6 +538,177 @@
       btn.querySelector('.label').textContent = original;
     }
   });
+</script>
+
+<!-- ============ 3D DEVICE VIEWER ============ -->
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ── Renderer ────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('device-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// ── Scene + camera ───────────────────────────────────────────────────────────
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+camera.position.set(0, 0.6, 4.5);
+camera.lookAt(0, 0, 0);
+
+// ── Lighting — matches brand palette ────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x08101a, 8));
+
+const key = new THREE.DirectionalLight(0xffffff, 1.5);
+key.position.set(3, 4, 5);
+scene.add(key);
+
+// Neon green fill from upper-left
+const neonFill = new THREE.PointLight(0x39FF9C, 10, 12);
+neonFill.position.set(-2.5, 2, 2.5);
+scene.add(neonFill);
+
+// Electric blue rim from lower-right-back
+const electricRim = new THREE.PointLight(0x3FA9FF, 6, 12);
+electricRim.position.set(2.5, -1.5, -2);
+scene.add(electricRim);
+
+// ── Placeholder geometry (retainer form factor) ──────────────────────────────
+// Shown until device.glb is dropped into app/static/.
+function buildPlaceholder() {
+  const group = new THREE.Group();
+
+  // Horseshoe arch tube
+  const archGeo = new THREE.TorusGeometry(1.1, 0.072, 24, 120, Math.PI);
+  const archMat = new THREE.MeshStandardMaterial({
+    color:             0x162232,
+    metalness:         0.9,
+    roughness:         0.1,
+    emissive:          new THREE.Color(0x39FF9C),
+    emissiveIntensity: 0.18,
+  });
+  const arch = new THREE.Mesh(archGeo, archMat);
+  // TorusGeometry arc runs from 0→PI on the XZ plane; rotate so open end faces -Y
+  arch.rotation.z = Math.PI / 2;
+  group.add(arch);
+
+  // Palate plate — thin semi-circular disc
+  const palateShape = new THREE.Shape();
+  palateShape.absarc(0, 0, 1.0, 0, Math.PI, false);
+  palateShape.lineTo(0, 0);
+  const plateMat = new THREE.MeshStandardMaterial({
+    color:       0x0c1822,
+    metalness:   0.2,
+    roughness:   0.9,
+    transparent: true,
+    opacity:     0.65,
+    side:        THREE.DoubleSide,
+  });
+  const plate = new THREE.Mesh(new THREE.ShapeGeometry(palateShape, 80), plateMat);
+  plate.rotation.x = Math.PI / 2;
+  group.add(plate);
+
+  // FSR sensor nodes
+  const nodeMat = new THREE.MeshStandardMaterial({
+    color:             0x3FA9FF,
+    emissive:          new THREE.Color(0x3FA9FF),
+    emissiveIntensity: 0.55,
+    metalness:         0.95,
+    roughness:         0.05,
+  });
+  const nodeGeo = new THREE.SphereGeometry(0.075, 20, 20);
+  // Positions in XZ plane (Y=0 is the plate surface, slightly above)
+  [
+    [ 0,    0.05,  0.75],  // anterior centre
+    [-0.5,  0.05,  0.55],  // anterior L
+    [ 0.5,  0.05,  0.55],  // anterior R
+    [-0.85, 0.05,  0.1 ],  // posterior L
+    [ 0.85, 0.05,  0.1 ],  // posterior R
+  ].forEach(([x, y, z]) => {
+    const n = new THREE.Mesh(nodeGeo, nodeMat.clone());
+    n.position.set(x, y, z);
+    group.add(n);
+  });
+
+  return group;
+}
+
+// ── Scene pivot (everything rotates here) ────────────────────────────────────
+const pivot = new THREE.Group();
+scene.add(pivot);
+
+// Try real model first; fall back to placeholder
+const loader = new GLTFLoader();
+loader.load(
+  '/static/device.glb',
+  (gltf) => {
+    const model = gltf.scene;
+    const box   = new THREE.Box3().setFromObject(model);
+    const size  = box.getSize(new THREE.Vector3());
+    const scale = 2.8 / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(scale);
+    model.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-scale));
+    pivot.add(model);
+  },
+  undefined,
+  () => pivot.add(buildPlaceholder()),   // no model yet → show placeholder
+);
+
+// ── Pulsing spin ─────────────────────────────────────────────────────────────
+//
+//   ω(t) = ω_base + ω_peak · sin¹²(π · φ)      where φ = (t mod T) / T
+//
+//   sin¹² produces a narrow Gaussian-like bell centred at φ=0.5.
+//   The exponent 12 makes it spend most of the cycle near 0 (≈ slow base
+//   rotation) with one crisp burst per period — exactly the "long duty cycle
+//   of slow + occasional fast spin" you described.
+//
+//   Tune these three knobs:
+//     T          = period length (seconds)
+//     ω_base     = floor speed  (rad/s)
+//     ω_peak     = burst speed  (rad/s, added on top of base at peak)
+//
+const T      = 14;    // seconds per cycle
+const W_BASE = 0.12;  // ~0.7 RPM background drift
+const W_PEAK = 3.8;   // ~36 RPM at burst peak
+
+function spinSpeed(t) {
+  const phi  = (t % T) / T;                          // 0 → 1
+  const bell = Math.pow(Math.sin(Math.PI * phi), 12); // narrow bell
+  return W_BASE + W_PEAK * bell;
+}
+
+// ── Resize ───────────────────────────────────────────────────────────────────
+function onResize() {
+  const wrap = document.getElementById('device-wrap');
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(onResize).observe(document.getElementById('device-wrap'));
+onResize();
+
+// ── Animation loop ───────────────────────────────────────────────────────────
+let yAngle = 0;
+let prev   = performance.now() / 1000;
+
+(function loop() {
+  requestAnimationFrame(loop);
+  const now = performance.now() / 1000;
+  const dt  = Math.min(now - prev, 0.05);   // cap delta to avoid jumps on tab restore
+  prev = now;
+
+  yAngle          += spinSpeed(now) * dt;
+  pivot.rotation.y = yAngle;
+  pivot.rotation.x = Math.sin(now * 0.22) * 0.07;   // subtle nod wobble
+
+  renderer.render(scene, camera);
+}());
 </script>
 
 </body>
