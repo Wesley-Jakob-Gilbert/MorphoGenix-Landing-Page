@@ -116,12 +116,70 @@
       50%      { transform: scaleY(1); }
     }
 
-    /* 3D canvas container glow */
-    #device-wrap {
-      background: radial-gradient(ellipse at center, rgba(57,255,156,0.04) 0%, rgba(63,169,255,0.03) 50%, transparent 75%);
-      border: 1px solid rgba(57,255,156,0.12);
-      border-radius: 1.5rem;
+    /* ── Blueprint sheet (hero right-column frame) ──────────────────────── */
+    .sheet {
+      background:
+        linear-gradient(rgba(63,169,255,0.05) 1px, transparent 1px) 0 0/40px 40px,
+        linear-gradient(90deg, rgba(63,169,255,0.05) 1px, transparent 1px) 0 0/40px 40px,
+        radial-gradient(ellipse at 70% 20%, rgba(57,255,156,0.05), transparent 60%),
+        #0B1218;
+      border: 1px solid rgba(63,169,255,0.22);
+      border-radius: 1rem;
+      box-shadow:
+        inset 0 0 0 1px rgba(63,169,255,0.05),
+        0 30px 80px -20px rgba(0,0,0,0.6),
+        0 0 60px -20px rgba(57,255,156,0.15);
+      color: #7AD1FF;
     }
+    .sheet .bp-label  { font-family: ui-monospace, monospace; font-size: 9.5px; fill: #7AD1FF; letter-spacing: 0.05em; }
+    .sheet .bp-sub    { font-family: ui-monospace, monospace; font-size: 8.5px;  fill: #4A6B85; letter-spacing: 0.04em; }
+    .sheet .bp-dim    { font-family: ui-monospace, monospace; font-size: 8.5px;  fill: #8A9AA6; }
+    .sheet .bp-title  { font-family: ui-monospace, monospace; font-size: 10.5px; fill: #E6F0EE; letter-spacing: 0.1em; font-weight: 600; }
+    .sheet .bp-stroke    { fill: none; stroke: #3FA9FF; stroke-width: 1.25; }
+    .sheet .bp-stroke-hi { fill: none; stroke: #7AD1FF; stroke-width: 1.5; }
+    .sheet .bp-stroke-dash { fill: none; stroke: #3FA9FF; stroke-width: 1;    stroke-dasharray: 3 3; opacity: 0.7; }
+    .sheet .bp-accent    { fill: none; stroke: #39FF9C; stroke-width: 1.25; }
+    .sheet .bp-leader    { fill: none; stroke: #39FF9C; stroke-width: 1; opacity: 0.85; }
+    .sheet .bp-dim-line  { fill: none; stroke: #8A9AA6; stroke-width: 0.7; }
+    .sheet .bp-tick      { fill: none; stroke: #3FA9FF; stroke-width: 1.25; }
+    .sheet .bp-dot       { fill: #39FF9C; }
+    .sheet .bp-dot-blue  { fill: #3FA9FF; }
+    .sheet text { dominant-baseline: middle; }
+
+    .ping { animation: ping 2.2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes ping {
+      0%   { opacity: 1;   transform: scale(1); }
+      80%  { opacity: 0;   transform: scale(3.2); }
+      100% { opacity: 0;   transform: scale(3.2); }
+    }
+
+    /* Live 3D cell inside the blueprint sheet */
+    #iso-cell {
+      background:
+        radial-gradient(ellipse at center, rgba(57,255,156,0.06) 0%, rgba(63,169,255,0.04) 50%, transparent 80%),
+        linear-gradient(rgba(63,169,255,0.04) 1px, transparent 1px) 0 0/20px 20px,
+        linear-gradient(90deg, rgba(63,169,255,0.04) 1px, transparent 1px) 0 0/20px 20px;
+      border: 1px dashed rgba(63,169,255,0.28);
+      border-radius: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #iso-cell canvas { display: block; width: 100%; height: 100%; }
+    .iso-chrome {
+      position: absolute; inset: 0; pointer-events: none;
+      font-family: ui-monospace, monospace; color: #7AD1FF; font-size: 10px; letter-spacing: 0.08em;
+    }
+    .iso-chrome .tl { position: absolute; top: 8px;  left: 10px; color: #7AD1FF; }
+    .iso-chrome .tr { position: absolute; top: 8px;  right: 10px; color: #39FF9C; display:flex; align-items:center; gap:6px; }
+    .iso-chrome .bl { position: absolute; bottom: 8px; left: 10px; color: #8A9AA6; font-size: 9px; }
+    .iso-chrome .br { position: absolute; bottom: 8px; right: 10px; color: #8A9AA6; font-size: 9px; }
+    .iso-chrome .corner { position: absolute; width: 10px; height: 10px; border: 1px solid #3FA9FF; opacity: 0.7; }
+    .iso-chrome .corner.tl { top: 3px; left: 3px; border-right: none; border-bottom: none; }
+    .iso-chrome .corner.tr { top: 3px; right: 3px; border-left:  none; border-bottom: none; }
+    .iso-chrome .corner.bl { bottom: 3px; left: 3px; border-right: none; border-top:    none; }
+    .iso-chrome .corner.br { bottom: 3px; right: 3px; border-left:  none; border-top:    none; }
+    .iso-chrome .rec-dot { width: 6px; height: 6px; border-radius: 9999px; background: #39FF9C;
+      box-shadow: 0 0 0 0 rgba(57,255,156,0.6); animation: pulse 1.6s infinite; }
   </style>
 </head>
 
@@ -190,9 +248,137 @@
         </div>
       </div>
 
-      <!-- Right: 3D device viewer -->
-      <div id="device-wrap" class="relative w-full aspect-square max-w-sm mx-auto lg:max-w-none">
-        <canvas id="device-canvas" style="display:block;width:100%;height:100%"></canvas>
+      <!-- Right: blueprint sheet with live 3D iso cell -->
+      <div class="sheet relative w-full p-5 md:p-6">
+        <!-- Sheet header strip -->
+        <div class="flex items-center justify-between text-[10px] font-mono tracking-widest uppercase text-electric2 pb-3 border-b border-electric/20">
+          <span>SOD-V0.1.STEP</span>
+          <span class="hidden sm:inline text-inklo">SHEET 1/1 · SCALE 2:1</span>
+          <span class="flex items-center gap-1.5 text-neon"><span class="w-1.5 h-1.5 rounded-full bg-neon inline-block" style="box-shadow:0 0 8px #39FF9C"></span>REV 2026-04-A</span>
+        </div>
+
+        <!-- Top row: TOP view (left) + SIDE section (right) -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
+
+          <!-- TOP VIEW · PALATAL -->
+          <div>
+            <div class="font-mono text-[10px] tracking-widest uppercase text-electric2">Top · Palatal</div>
+            <div class="font-mono text-[9px] text-inklo/70">occlusal plane</div>
+            <svg viewBox="0 0 220 180" class="mt-1 w-full h-auto">
+              <!-- outer arch -->
+              <path class="bp-stroke-hi" d="M30 150 C 50 30, 170 30, 190 150"/>
+              <!-- inner arch -->
+              <path class="bp-stroke-dash" d="M50 148 C 68 55, 152 55, 170 148"/>
+              <!-- centre line -->
+              <path class="bp-stroke-dash" d="M110 20 L 110 160"/>
+              <!-- MCU bay -->
+              <rect class="bp-stroke" x="95" y="35" width="30" height="14" rx="2"/>
+              <text class="bp-sub" x="110" y="42" text-anchor="middle" fill="#7AD1FF">MCU</text>
+              <!-- FSR nodes with pings -->
+              <g>
+                <circle class="bp-dot" cx="78" cy="95" r="3.5"/>
+                <circle class="bp-accent ping" cx="78" cy="95" r="3.5" style="animation-delay:0s"/>
+              </g>
+              <g>
+                <circle class="bp-dot" cx="142" cy="95" r="3.5"/>
+                <circle class="bp-accent ping" cx="142" cy="95" r="3.5" style="animation-delay:0.7s"/>
+              </g>
+              <g>
+                <circle class="bp-dot-blue" cx="110" cy="135" r="3"/>
+                <circle cx="110" cy="135" r="3" fill="none" stroke="#3FA9FF" stroke-width="1.25" class="ping" style="animation-delay:1.4s"/>
+              </g>
+              <!-- Ø dimension -->
+              <g>
+                <line class="bp-dim-line" x1="30" y1="166" x2="190" y2="166"/>
+                <line class="bp-dim-line" x1="30" y1="162" x2="30" y2="170"/>
+                <line class="bp-dim-line" x1="190" y1="162" x2="190" y2="170"/>
+                <text class="bp-dim" x="110" y="174" text-anchor="middle">Ø 58.0 mm</text>
+              </g>
+              <!-- labels -->
+              <text class="bp-sub" x="62"  y="85" text-anchor="end">01 L</text>
+              <text class="bp-sub" x="158" y="85" text-anchor="start">02 R</text>
+              <text class="bp-sub" x="120" y="135" text-anchor="start">03</text>
+            </svg>
+          </div>
+
+          <!-- SIDE VIEW · SAGITTAL -->
+          <div>
+            <div class="font-mono text-[10px] tracking-widest uppercase text-electric2">Side · Section A–A</div>
+            <div class="font-mono text-[9px] text-inklo/70">2.1 mm EVA shell</div>
+            <svg viewBox="0 0 220 180" class="mt-1 w-full h-auto">
+              <!-- outer profile (the curve we extrude in 3D) -->
+              <path id="sagittal-outer" class="bp-stroke-hi"
+                    d="M25 110 C 55 35, 165 35, 195 110"/>
+              <!-- inner profile -->
+              <path class="bp-stroke-dash"
+                    d="M40 108 C 65 55, 155 55, 180 108"/>
+              <!-- baseline -->
+              <line class="bp-stroke" x1="25" y1="110" x2="195" y2="110"/>
+              <!-- FSR tab -->
+              <rect class="bp-accent" x="80" y="72" width="12" height="6" rx="1" fill="#0B1218"/>
+              <circle class="bp-dot" cx="86" cy="75" r="1.5"/>
+              <!-- MCU bay -->
+              <rect class="bp-stroke" x="100" y="68" width="26" height="10" rx="1" fill="#0B1218"/>
+              <!-- LiPo bay -->
+              <rect class="bp-stroke" x="132" y="70" width="20" height="8" rx="1" fill="#0B1218"/>
+              <!-- h dim -->
+              <g>
+                <line class="bp-dim-line" x1="15" y1="40"  x2="15" y2="110"/>
+                <line class="bp-dim-line" x1="11" y1="40"  x2="19" y2="40"/>
+                <line class="bp-dim-line" x1="11" y1="110" x2="19" y2="110"/>
+                <text class="bp-dim" x="22" y="76">h 12 mm</text>
+              </g>
+              <!-- L dim -->
+              <g>
+                <line class="bp-dim-line" x1="25"  y1="160" x2="195" y2="160"/>
+                <line class="bp-dim-line" x1="25"  y1="156" x2="25"  y2="164"/>
+                <line class="bp-dim-line" x1="195" y1="156" x2="195" y2="164"/>
+                <text class="bp-dim" x="110" y="168" text-anchor="middle">L 52.0 mm</text>
+              </g>
+              <!-- callout to right side: FSR embedded -->
+              <g>
+                <path class="bp-leader" d="M86 75 L 175 40"/>
+                <text class="bp-sub" x="178" y="40" fill="#39FF9C">04 FSR</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Section divider -->
+        <div class="mt-3 flex items-center gap-3">
+          <div class="h-px flex-1 bg-electric/20"></div>
+          <span class="font-mono text-[9px] tracking-widest uppercase text-inklo">Isometric · 3/4 view · live</span>
+          <div class="h-px flex-1 bg-electric/20"></div>
+        </div>
+
+        <!-- LIVE 3D iso cell (fills the bottom half of the sheet) -->
+        <div id="iso-cell" class="mt-3 w-full aspect-[16/10]">
+          <canvas id="device-canvas"></canvas>
+          <div class="iso-chrome">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+            <span class="tl">PROJ 30° / 30°</span>
+            <span class="tr"><span class="rec-dot"></span>REC</span>
+            <span class="bl">MAT · EVA (USP VI)</span>
+            <span class="br">10 Hz · BLE · NUS</span>
+          </div>
+        </div>
+
+        <!-- Title block footer -->
+        <div class="mt-4 grid grid-cols-3 gap-3 font-mono text-[10px] border-t border-electric/20 pt-3">
+          <div>
+            <div class="text-inklo/70 text-[9px] tracking-widest uppercase">Part</div>
+            <div class="text-inkhi">SOD-v0.1</div>
+          </div>
+          <div>
+            <div class="text-inklo/70 text-[9px] tracking-widest uppercase">Drawn</div>
+            <div class="text-inkhi">W. Gilbert</div>
+          </div>
+          <div class="text-right">
+            <div class="text-inklo/70 text-[9px] tracking-widest uppercase">Status</div>
+            <div class="text-neon">Patent pending</div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -555,8 +741,12 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // ── Scene + camera ───────────────────────────────────────────────────────────
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(0, 0.6, 4.5);
+// 3/4 isometric-feel perspective — slightly raised & offset camera to sell the
+// ISO quadrant in the blueprint. 30°/30° matches the "projection" label.
+const camera = new THREE.PerspectiveCamera(30, 1.6, 0.1, 100);
+// Position gives a 3/4 front-top view: slightly right of center, well above,
+// looking down into the opening so the interior + FSR dots are visible.
+camera.position.set(2.8, 3.2, 3.8);
 camera.lookAt(0, 0, 0);
 
 // ── Lighting — matches brand palette ────────────────────────────────────────
@@ -577,61 +767,191 @@ electricRim.position.set(2.5, -1.5, -2);
 scene.add(electricRim);
 
 // ── Placeholder geometry (retainer form factor) ──────────────────────────────
-// Shown until device.glb is dropped into app/static/.
+// Shown until device.glb is dropped into app/static/. This is the blueprint's
+// sagittal cross-section (side view) sweeping along the top-view horseshoe
+// centerline — i.e. the SVG made real.
 function buildPlaceholder() {
   const group = new THREE.Group();
 
-  // Horseshoe arch tube
-  const archGeo = new THREE.TorusGeometry(1.1, 0.072, 24, 120, Math.PI);
-  const archMat = new THREE.MeshStandardMaterial({
-    color:             0x162232,
+  // ── Shared materials ──────────────────────────────────────────────────────
+  const shellMat = new THREE.MeshPhysicalMaterial({
+    color:             0x162a3e,
+    metalness:         0.25,
+    roughness:         0.35,
+    clearcoat:         1.0,
+    clearcoatRoughness:0.15,
+    emissive:          new THREE.Color(0x3FA9FF),
+    emissiveIntensity: 0.12,
+    transparent:       true,
+    opacity:           0.85,
+    side:              THREE.DoubleSide,
+  });
+
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x7AD1FF, transparent: true, opacity: 0.85 });
+
+  const accentMat = new THREE.MeshStandardMaterial({
+    color:             0x0c1a28,
     metalness:         0.9,
-    roughness:         0.1,
+    roughness:         0.2,
     emissive:          new THREE.Color(0x39FF9C),
-    emissiveIntensity: 0.18,
+    emissiveIntensity: 0.08,
   });
-  const arch = new THREE.Mesh(archGeo, archMat);
-  // TorusGeometry arc runs from 0→PI on the XZ plane; rotate so open end faces -Y
-  arch.rotation.z = Math.PI / 2;
-  group.add(arch);
 
-  // Palate plate — thin semi-circular disc
-  const palateShape = new THREE.Shape();
-  palateShape.absarc(0, 0, 1.0, 0, Math.PI, false);
-  palateShape.lineTo(0, 0);
-  const plateMat = new THREE.MeshStandardMaterial({
-    color:       0x0c1822,
-    metalness:   0.2,
-    roughness:   0.9,
-    transparent: true,
-    opacity:     0.65,
-    side:        THREE.DoubleSide,
+  const fsrMat = new THREE.MeshStandardMaterial({
+    color:             0x39FF9C,
+    emissive:          new THREE.Color(0x39FF9C),
+    emissiveIntensity: 0.9,
+    metalness:         0.7,
+    roughness:         0.25,
   });
-  const plate = new THREE.Mesh(new THREE.ShapeGeometry(palateShape, 80), plateMat);
-  plate.rotation.x = Math.PI / 2;
-  group.add(plate);
-
-  // FSR sensor nodes
-  const nodeMat = new THREE.MeshStandardMaterial({
+  const fsrOccMat = new THREE.MeshStandardMaterial({
     color:             0x3FA9FF,
     emissive:          new THREE.Color(0x3FA9FF),
-    emissiveIntensity: 0.55,
-    metalness:         0.95,
-    roughness:         0.05,
+    emissiveIntensity: 0.9,
+    metalness:         0.7,
+    roughness:         0.25,
   });
-  const nodeGeo = new THREE.SphereGeometry(0.075, 20, 20);
-  // Positions in XZ plane (Y=0 is the plate surface, slightly above)
-  [
-    [ 0,    0.05,  0.75],  // anterior centre
-    [-0.5,  0.05,  0.55],  // anterior L
-    [ 0.5,  0.05,  0.55],  // anterior R
-    [-0.85, 0.05,  0.1 ],  // posterior L
-    [ 0.85, 0.05,  0.1 ],  // posterior R
-  ].forEach(([x, y, z]) => {
-    const n = new THREE.Mesh(nodeGeo, nodeMat.clone());
-    n.position.set(x, y, z);
-    group.add(n);
-  });
+
+  // ── Sagittal cross-section (the profile drawn in the SIDE VIEW SVG) ───────
+  //
+  // This is the shell's 2D wall: a thin ring-like slice that, when swept along
+  // the horseshoe arch, forms the retainer. Local axes:
+  //   +x = radial out (toward the cheek side of the arch)
+  //   +y = vertical   (up into the palate dome)
+  //
+  // We build a closed 2D shape: outer palate dome curve going up + over, then
+  // an inner parallel curve (the tongue-side face) offset 2.1 mm inward.
+  //
+  const section = new THREE.Shape();
+  // Outer wall: start at baseline outer edge, arc up into the dome
+  section.moveTo(-8, 0);
+  section.bezierCurveTo(-6,  6,  -3, 11,   0, 12);   // outer upper left
+  section.bezierCurveTo( 3, 11,   6,  6,   8,  0);   // outer upper right
+  // Inner wall: offset ≈ 2.1 mm inward (shell thickness)
+  section.lineTo(6, 0);
+  section.bezierCurveTo(4.5, 5, 2.2, 9, 0, 10);
+  section.bezierCurveTo(-2.2, 9, -4.5, 5, -6, 0);
+  section.lineTo(-8, 0);                              // close back to start
+
+  // ── Horseshoe arch centerline (the path from TOP VIEW) ────────────────────
+  //
+  // ExtrudeGeometry with `extrudePath` sweeps the 2D shape along a 3D curve,
+  // keeping the shape's XY plane perpendicular to the curve tangent. That
+  // gives us a real hollow U-shaped shell.
+  //
+  const archR = 20;      // arch half-width in device mm (≈ 29 mm wide arch)
+  const archD = 26;      // arch depth (front-to-back) in device mm
+  const archSamples = 120;
+
+  const archCurve = new THREE.CatmullRomCurve3(
+    Array.from({length: archSamples}, (_, i) => {
+      const t = i / (archSamples - 1);
+      // Half-ellipse from (-R, +D*0.85) at t=0 → (0, -D*0.15) apex → (+R, +D*0.85)
+      // using an angle parameter so the curve is smooth.
+      const angle = Math.PI * t;                         // 0 → π
+      const x = -Math.cos(angle) * archR;                // -R → +R
+      const z =  Math.sin(angle) * archD - archD * 0.35; // bulge into -Z then back
+      // Small parabolic lift at the apex so the posterior bite plane sits lower
+      return new THREE.Vector3(x, 0, -z);                // negate z: mouth faces +Z
+    }),
+    false,
+    'catmullrom',
+    0.2,
+  );
+
+  // ExtrudeGeometry settings: steps = arch resolution, no depth (using path)
+  const extrudeSettings = {
+    steps:       archSamples,
+    bevelEnabled:true,
+    bevelThickness: 0.4,
+    bevelSize:      0.4,
+    bevelSegments:  2,
+    extrudePath: archCurve,
+  };
+
+  const geo = new THREE.ExtrudeGeometry(section, extrudeSettings);
+  // Center the geometry on origin (by default it lives where the extrude path was)
+  geo.computeBoundingBox();
+  const bbCenter = new THREE.Vector3();
+  geo.boundingBox.getCenter(bbCenter);
+  geo.translate(-bbCenter.x, -bbCenter.y, -bbCenter.z);
+
+  // Scale device-mm → scene units (target ≈ 2.8 scene units wide)
+  const sceneScale = 0.06;
+  const shell = new THREE.Mesh(geo, shellMat);
+  shell.scale.setScalar(sceneScale);
+  group.add(shell);
+
+  // Neon edge wireframe overlay to echo the blueprint linework. Lower angle
+  // threshold so we get more lines along the curved shell surfaces.
+  const edges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(geo, 10),
+    edgeMat,
+  );
+  edges.scale.setScalar(sceneScale);
+  // Slight scale-up so edges sit just outside the shell surface and avoid z-fight
+  edges.scale.multiplyScalar(1.003);
+  group.add(edges);
+
+  // Stash the centering offset so we can recenter the component bays + FSR dots too.
+  // We'll put all mm-space children under an inner group that gets translated + scaled.
+  const centerOffset = bbCenter.clone();
+  const mm = new THREE.Group();
+  mm.scale.setScalar(sceneScale);
+  mm.position.sub(centerOffset.clone().multiplyScalar(sceneScale));
+  group.add(mm);
+
+  // ── Component bays on top of the palate (MCU + LiPo at the posterior apex) ──
+  // The arch apex (t=0.5) sits at roughly (0, 0, -archD*0.85) after the -z flip
+  // actually — let's just query it.
+  const getArchPt = (t) => archCurve.getPointAt(t);
+  const apexPt   = getArchPt(0.5);
+  const domeTopY = 13;  // slightly above section max y=12
+
+  const mcuBay = new THREE.Mesh(
+    new THREE.BoxGeometry(10, 2, 6),
+    accentMat,
+  );
+  mcuBay.position.set(apexPt.x, domeTopY, apexPt.z - 2);
+  mm.add(mcuBay);
+
+  const lipoBay = new THREE.Mesh(
+    new THREE.BoxGeometry(12, 1.5, 4),
+    accentMat,
+  );
+  lipoBay.position.set(apexPt.x, domeTopY, apexPt.z + 4);
+  mm.add(lipoBay);
+
+  // ── FSR sensor dots (03 occlusal + 01/02 palatal L/R) ─────────────────────
+  const dotGeo    = new THREE.SphereGeometry(0.9, 20, 20);
+  const dotOccGeo = new THREE.SphereGeometry(0.8, 20, 20);
+
+  const lPt = getArchPt(0.30);
+  const rPt = getArchPt(0.70);
+
+  const palL = new THREE.Mesh(dotGeo, fsrMat);
+  palL.position.set(lPt.x, 9, lPt.z);
+  mm.add(palL);
+
+  const palR = new THREE.Mesh(dotGeo, fsrMat);
+  palR.position.set(rPt.x, 9, rPt.z);
+  mm.add(palR);
+
+  // Occlusal — place at the anterior (t=0 or t=1); here we use the front-center
+  // approximation by averaging the two tips.
+  const anterior = getArchPt(0).clone().add(getArchPt(1)).multiplyScalar(0.5);
+  const occ = new THREE.Mesh(dotOccGeo, fsrOccMat);
+  occ.position.set(anterior.x, 0.5, anterior.z);
+  mm.add(occ);
+
+  // Stash dot materials + a 'time' hook so the loop can pulse them in sync
+  group.userData.pulseTargets = [
+    { mesh: palL, mat: fsrMat.clone(),    phase: 0.0 },
+    { mesh: palR, mat: fsrMat.clone(),    phase: 0.6 },
+    { mesh: occ,  mat: fsrOccMat.clone(), phase: 1.2 },
+  ];
+  // Replace shared materials with clones so each dot pulses independently
+  group.userData.pulseTargets.forEach(t => { t.mesh.material = t.mat; });
 
   return group;
 }
@@ -682,15 +1002,16 @@ function spinSpeed(t) {
 }
 
 // ── Resize ───────────────────────────────────────────────────────────────────
+const isoCell = document.getElementById('iso-cell');
 function onResize() {
-  const wrap = document.getElementById('device-wrap');
-  const w = wrap.clientWidth;
-  const h = wrap.clientHeight;
+  const w = isoCell.clientWidth;
+  const h = isoCell.clientHeight;
+  if (!w || !h) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
-new ResizeObserver(onResize).observe(document.getElementById('device-wrap'));
+new ResizeObserver(onResize).observe(isoCell);
 onResize();
 
 // ── Animation loop ───────────────────────────────────────────────────────────
@@ -706,6 +1027,18 @@ let prev   = performance.now() / 1000;
   yAngle          += spinSpeed(now) * dt;
   pivot.rotation.y = yAngle;
   pivot.rotation.x = Math.sin(now * 0.22) * 0.07;   // subtle nod wobble
+
+  // Pulse FSR emissive dots in sync with the blueprint SVG pings
+  pivot.traverse((obj) => {
+    const pulses = obj.userData && obj.userData.pulseTargets;
+    if (!pulses) return;
+    for (const p of pulses) {
+      // 2.2 s period to match the .ping CSS animation; sin^6 bell for a snappy flash
+      const phase = ((now + p.phase) % 2.2) / 2.2;
+      const bell  = Math.pow(Math.sin(Math.PI * phase), 6);
+      p.mat.emissiveIntensity = 0.45 + 1.8 * bell;
+    }
+  });
 
   renderer.render(scene, camera);
 }());
