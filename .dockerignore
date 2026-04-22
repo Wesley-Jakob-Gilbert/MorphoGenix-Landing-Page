@@ -1,0 +1,46 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Environment / secrets
+.env
+.env.local
+.env.*
+*.pem
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Docs & dev-only
+CLAUDE.md
+README.md
+ruff.toml
+.env.example
+
+# Test & browser artifacts
+.playwright-mcp/
+tests/
+
+# Logs
+*.log

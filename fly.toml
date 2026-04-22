@@ -1,0 +1,52 @@
+# fly.toml — MorphoGenix landing page
+# Docs: https://fly.io/docs/reference/configuration/
+#
+# Before first deploy:
+#   1. fly auth login
+#   2. fly apps create morphogenix-web   (or let `fly launch --no-deploy` do it)
+#   3. fly secrets set NOTION_TOKEN=secret_xxx NOTION_DATABASE_ID=2fdab5cfd494473aa2d41d04e09ef6c0
+#   4. fly deploy
+#
+# To attach your custom domain:
+#   fly certs create morphogenix.com
+#   fly certs create www.morphogenix.com
+# and add the DNS records Fly prints at your registrar (GoDaddy).
+
+app = "morphogenix-web"
+primary_region = "den"   # Denver — closest to Salt Lake / Mountain Time
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  APP_ENV = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Always-on: we explicitly do NOT want the landing page to cold-start
+  # on a waitlist submission.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 200
+    soft_limit = 100
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/healthz"
+
+# Smallest shared-cpu VM — plenty for a Jinja landing page.
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
