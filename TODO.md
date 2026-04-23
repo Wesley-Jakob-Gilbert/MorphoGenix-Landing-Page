@@ -30,9 +30,7 @@ self-contained and can be implemented independently.
 These are manual steps, not PRs. Someone must do them before `fly deploy`.
 
 - [ ] **Secure morphogenix.com on GoDaddy** — needed for custom domain and email
-- [ ] **Set up privacy@morphogenix.com** — required by the privacy page for GDPR
-      rights requests (30-day response obligation). Use GoDaddy email forwarding
-      or a Cloudflare Email Routing rule to forward to your personal inbox.
+- [x] **Set up privacy@morphogenix.com** — done 2026-04-22
 - [ ] **Create Fly.io app** — `fly apps create morphogenix-landing`
 - [ ] **Set Fly secrets** (never commit these):
       ```
