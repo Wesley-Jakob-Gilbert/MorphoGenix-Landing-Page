@@ -35,8 +35,8 @@ APP_ENV = os.environ.get("APP_ENV", "development").lower()
 IS_PROD = APP_ENV == "production"
 
 # Comma-separated list of hosts this app will answer for.
-# Example: ALLOWED_HOSTS="morphogenix.com,www.morphogenix.com,morphogenix-landing.fly.dev"
-_default_hosts = "morphogenix.com,www.morphogenix.com,*.fly.dev"
+# Example: ALLOWED_HOSTS="morphogenix.ai,www.morphogenix.ai,morphogenix-landing.fly.dev"
+_default_hosts = "morphogenix.ai,www.morphogenix.ai,*.fly.dev"
 ALLOWED_HOSTS = [
     h.strip()
     for h in os.environ.get("ALLOWED_HOSTS", _default_hosts).split(",")
