@@ -12,8 +12,8 @@ self-contained and can be implemented independently.
 |---|---|
 | PR #1 `devops/production-hardening` | Open — P0 fixes committed, ready to merge |
 | Fly.io deploy | Not yet done |
-| Domain (morphogenix.com) | Pending GoDaddy purchase |
-| `privacy@morphogenix.com` email | Pending domain |
+| Domain (morphogenix.ai) | Secured on GoDaddy |
+| `privacy@morphogenix.ai` email | Done 2026-04-22 |
 
 ---
 
@@ -29,8 +29,8 @@ self-contained and can be implemented independently.
 
 These are manual steps, not PRs. Someone must do them before `fly deploy`.
 
-- [ ] **Secure morphogenix.com on GoDaddy** — needed for custom domain and email
-- [x] **Set up privacy@morphogenix.com** — done 2026-04-22
+- [x] **Secure morphogenix.ai on GoDaddy** — done
+- [x] **Set up privacy@morphogenix.ai** — done 2026-04-22
 - [ ] **Create Fly.io app** — `fly apps create morphogenix-landing`
 - [ ] **Set Fly secrets** (never commit these):
       ```
@@ -42,9 +42,9 @@ These are manual steps, not PRs. Someone must do them before `fly deploy`.
 - [ ] **Set TURNSTILE_SITE_KEY in fly.toml** — uncomment the line, paste the
       public site key (safe to commit, visible in browser)
 - [ ] **Tighten ALLOWED_HOSTS** — once the app name is confirmed, set the
-      `ALLOWED_HOSTS` env var to `morphogenix.com,www.morphogenix.com,morphogenix-landing.fly.dev`
+      `ALLOWED_HOSTS` env var to `morphogenix.ai,www.morphogenix.ai,morphogenix-landing.fly.dev`
       instead of the wildcard `*.fly.dev` default
-- [ ] **Point DNS to Fly** — `fly certs add morphogenix.com www.morphogenix.com`
+- [ ] **Point DNS to Fly** — `fly certs add morphogenix.ai www.morphogenix.ai`
       then set CNAME/A records in GoDaddy as instructed
 
 ---
