@@ -3,9 +3,9 @@
 Run locally:
     uvicorn app.main:app --reload --port 8000
 
-Production is deployed on Fly.io — see fly.toml and Dockerfile. Behind the
-Fly edge, uvicorn is started with --proxy-headers so X-Forwarded-For is
-trusted for rate-limit keying.
+Production is deployed on Fly.io — see fly.toml and Dockerfile. The rate
+limiter keys on the Fly-Client-IP header (set by Fly's edge, not spoofable
+by clients) rather than X-Forwarded-For (which clients can inject).
 """
 from __future__ import annotations
 
@@ -24,7 +24,6 @@ from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .notion_client import NotionError, add_waitlist_signup
@@ -72,6 +71,19 @@ def _redact_email(email: str) -> str:
     return f"{prefix}***@{domain}#{digest}"
 
 
+def _fly_client_ip(request: Request) -> str:
+    """Return the real client IP using Fly's trusted Fly-Client-IP header.
+
+    With --forwarded-allow-ips=* any client can spoof X-Forwarded-For and
+    bypass the rate limiter. Fly sets Fly-Client-IP at the edge — it cannot
+    be injected by the client. Falls back to the raw connection IP for local dev.
+    """
+    return (
+        request.headers.get("fly-client-ip")
+        or (request.client.host if request.client else "unknown")
+    )
+
+
 # ---------- App ----------
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -84,9 +96,8 @@ app = FastAPI(
     openapi_url=None if IS_PROD else "/openapi.json",
 )
 
-# Rate limiting. Default key is the client IP from X-Forwarded-For (we run
-# with uvicorn --proxy-headers so Fly's edge headers are trusted).
-limiter = Limiter(key_func=get_remote_address, default_limits=[])
+# Rate limiting keyed on Fly-Client-IP (not X-Forwarded-For, which clients can spoof).
+limiter = Limiter(key_func=_fly_client_ip, default_limits=[])
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
@@ -235,7 +246,7 @@ async def waitlist(request: Request, signup: WaitlistSignup):
         return JSONResponse({"ok": True, "stored": False, "message": "Thanks."})
 
     # 3. Turnstile (no-op if unconfigured).
-    client_ip = get_remote_address(request)
+    client_ip = _fly_client_ip(request)
     if not await _verify_turnstile(signup.turnstile_token or "", client_ip):
         logger.info("Rejecting waitlist signup: turnstile failed (%s)",
                     _redact_email(signup.email))

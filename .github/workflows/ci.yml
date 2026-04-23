@@ -34,7 +34,7 @@ jobs:
         run: python -c "import app.main; import app.notion_client"
 
       - name: Bandit static security scan
-        run: bandit -r app/ -q -lll
+        run: bandit -r app/ -q -ll
 
       - name: pip-audit (known CVEs)
         run: pip-audit --strict || true   # don't block on advisories; review weekly
