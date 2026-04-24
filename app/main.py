@@ -7,6 +7,7 @@ Production is deployed on Fly.io — see fly.toml and Dockerfile. The rate
 limiter keys on the Fly-Client-IP header (set by Fly's edge, not spoofable
 by clients) rather than X-Forwarded-For (which clients can inject).
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -38,9 +39,7 @@ IS_PROD = APP_ENV == "production"
 # Example: ALLOWED_HOSTS="morphogenix.ai,www.morphogenix.ai,morphogenix-landing.fly.dev"
 _default_hosts = "morphogenix.ai,www.morphogenix.ai,*.fly.dev"
 ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.environ.get("ALLOWED_HOSTS", _default_hosts).split(",")
-    if h.strip()
+    h.strip() for h in os.environ.get("ALLOWED_HOSTS", _default_hosts).split(",") if h.strip()
 ]
 
 # Cloudflare Turnstile — optional bot protection.
@@ -78,9 +77,8 @@ def _fly_client_ip(request: Request) -> str:
     bypass the rate limiter. Fly sets Fly-Client-IP at the edge — it cannot
     be injected by the client. Falls back to the raw connection IP for local dev.
     """
-    return (
-        request.headers.get("fly-client-ip")
-        or (request.client.host if request.client else "unknown")
+    return request.headers.get("fly-client-ip") or (
+        request.client.host if request.client else "unknown"
     )
 
 
@@ -234,22 +232,23 @@ async def _verify_turnstile(token: str, client_ip: str | None) -> bool:
 async def waitlist(request: Request, signup: WaitlistSignup):
     # 1. Honeypot — bots fill every field; humans never see it.
     if signup.website:
-        logger.info("Rejecting waitlist signup: honeypot filled (%s)",
-                    _redact_email(signup.email))
+        logger.info("Rejecting waitlist signup: honeypot filled (%s)", _redact_email(signup.email))
         # Return a 200 so bots don't learn this was a trap.
         return JSONResponse({"ok": True, "stored": False, "message": "Thanks."})
 
     # 2. Minimum time on page (very fast submits are almost always bots).
     if signup.elapsed_ms is not None and signup.elapsed_ms < 1500:
-        logger.info("Rejecting waitlist signup: too fast (%sms, %s)",
-                    signup.elapsed_ms, _redact_email(signup.email))
+        logger.info(
+            "Rejecting waitlist signup: too fast (%sms, %s)",
+            signup.elapsed_ms,
+            _redact_email(signup.email),
+        )
         return JSONResponse({"ok": True, "stored": False, "message": "Thanks."})
 
     # 3. Turnstile (no-op if unconfigured).
     client_ip = _fly_client_ip(request)
     if not await _verify_turnstile(signup.turnstile_token or "", client_ip):
-        logger.info("Rejecting waitlist signup: turnstile failed (%s)",
-                    _redact_email(signup.email))
+        logger.info("Rejecting waitlist signup: turnstile failed (%s)", _redact_email(signup.email))
         return JSONResponse(
             status_code=400,
             content={
