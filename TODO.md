@@ -1,4 +1,4 @@
-﻿# MorphoGenix -- Deployment & Ops TODO
+# MorphoGenix — Deployment & Ops TODO
 
 Tracking open items for the Fly.io launch. Goal: hands-off from deploy through
 at least June 2026. Items are grouped by priority; each PR suggestion is
@@ -29,17 +29,17 @@ These are manual steps, not PRs. Someone must do them before `fly deploy`.
         NOTION_DATABASE_ID=... \
         TURNSTILE_SECRET_KEY=...
       ```
-- [ ] **Set TURNSTILE_SITE_KEY in fly.toml** -- uncomment the line, paste the
+- [ ] **Set TURNSTILE_SITE_KEY in fly.toml** — uncomment the line, paste the
       public site key (safe to commit, visible in browser)
-- [ ] **Tighten ALLOWED_HOSTS** -- once the app name is confirmed, set the
+- [ ] **Tighten ALLOWED_HOSTS** — once the app name is confirmed, set the
       `ALLOWED_HOSTS` env var to `morphogenix.ai,www.morphogenix.ai,morphogenix-landing.fly.dev`
       instead of the wildcard `*.fly.dev` default
-- [ ] **Point DNS to Fly** -- `fly certs add morphogenix.ai www.morphogenix.ai`
+- [ ] **Point DNS to Fly** — `fly certs add morphogenix.ai www.morphogenix.ai`
       then set CNAME/A records in GoDaddy as instructed
 
 ---
 
-## P1 -- Error monitoring (open a new PR)
+## P1 — Error monitoring (open a new PR)
 
 **Why:** Without this, production failures are invisible until a user complains.
 
@@ -55,13 +55,13 @@ These are manual steps, not PRs. Someone must do them before `fly deploy`.
    )
    ```
 3. Run `fly secrets set SENTRY_DSN=https://...@sentry.io/...`
-4. Sentry free tier captures 5,000 errors/month -- sufficient for this scale.
+4. Sentry free tier captures 5,000 errors/month — sufficient for this scale.
 
 Sentry will alert on: Notion 502s, unhandled exceptions, startup failures.
 
 ---
 
-## P1 -- Continuous deployment (open a new PR)
+## P1 — Continuous deployment (open a new PR)
 
 **Why:** Without CD, every deploy is manual. For hands-off operation you want
 merges to main to deploy automatically.
@@ -82,13 +82,13 @@ merges to main to deploy automatically.
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 ```
 
-**GitHub secret to add:** `FLY_API_TOKEN` -- generate with `fly tokens create deploy`.
+**GitHub secret to add:** `FLY_API_TOKEN` — generate with `fly tokens create deploy`.
 
 ---
 
-## P2 -- Log persistence (open a new PR or manual setup)
+## P2 — Log persistence (open a new PR or manual setup)
 
-**Why:** Fly.io VM logs are ephemeral -- lost on machine restart. You need
+**Why:** Fly.io VM logs are ephemeral — lost on machine restart. You need
 persistent logs to debug production issues after the fact.
 
 **Option A (recommended, free tier):** Logtail / Better Stack
@@ -97,7 +97,7 @@ persistent logs to debug production issues after the fact.
 - Add to `fly.toml`:
   ```toml
   [services.log_shipper]
-    # Fly native log shipping -- see https://fly.io/docs/reference/log-shipper/
+    # Fly native log shipping — see https://fly.io/docs/reference/log-shipper/
   ```
 
 **Option B:** Fly's built-in `fly logs` command streams live logs but doesn't
@@ -105,7 +105,7 @@ persist. Acceptable for active monitoring; not for retrospective debugging.
 
 ---
 
-## P2 -- CVE monitoring (open a new PR)
+## P2 — CVE monitoring (open a new PR)
 
 **Why:** `pip-audit --strict || true` in CI currently never blocks a deploy,
 even for critical CVEs. Add a weekly scheduled scan that fails loudly.
@@ -125,7 +125,7 @@ strict vulnerabilities. If a known advisory is acceptable, use
 
 ---
 
-## P3 -- Notion data backup (open a new PR)
+## P3 — Notion data backup (open a new PR)
 
 **Why:** All waitlist signups are stored only in Notion. If the integration
 token expires, is revoked, or the database is accidentally deleted, all data
@@ -140,13 +140,13 @@ is gone with no recovery.
 
 ---
 
-## P3 -- 3D hero merge checklist
+## P3 — 3D hero merge checklist
 
 The `feature/3d-hero` branch adds a Three.js device animation to the hero.
 Before merging into main after PR #1:
 
-- [ ] Export `device.glb` from Blender (File --> Export --> glTF 2.0 --> Binary)
-- [ ] Drop `device.glb` into `app/static/` -- no code changes needed
+- [ ] Export `device.glb` from Blender (File → Export → glTF 2.0 → Binary)
+- [ ] Drop `device.glb` into `app/static/` — no code changes needed
 - [ ] Add `https://cdn.jsdelivr.net` to `_CSP_SCRIPT_SRC` in `app/main.py`:
       ```python
       _CSP_SCRIPT_SRC = (
@@ -164,14 +164,14 @@ Before merging into main after PR #1:
 
 ## Deferred / nice-to-have
 
-- **Tailwind build step** -- Replace Tailwind CDN with a local build so
+- **Tailwind build step** — Replace Tailwind CDN with a local build so
   `unsafe-inline` can be removed from `style-src`. Requires adding Node.js
   to the Docker build. Low urgency until traffic justifies it.
-- **Rate limit GET /** -- Currently only `POST /api/waitlist` is rate limited.
+- **Rate limit GET /** — Currently only `POST /api/waitlist` is rate limited.
   Homepage is unprotected. Add `@limiter.limit("60/minute")` to the index
   route if scraping becomes a concern.
-- **`elapsed_ms` threshold** -- Currently 1500ms. Consider raising to 3000ms
+- **`elapsed_ms` threshold** — Currently 1500ms. Consider raising to 3000ms
   to reduce false positives from screen-reader or keyboard-only users on slow
   connections.
-- **Smoke test after deploy** -- Add a post-deploy step that curls `/healthz`
+- **Smoke test after deploy** — Add a post-deploy step that curls `/healthz`
   and the homepage and fails the workflow if either returns non-200.
