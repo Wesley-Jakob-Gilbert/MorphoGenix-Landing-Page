@@ -2,6 +2,7 @@
 
 Keeps the dependency surface tiny (just httpx) and is easy to swap out later.
 """
+
 from __future__ import annotations
 
 import os
@@ -32,9 +33,7 @@ async def add_waitlist_signup(
     database_id = os.environ.get("NOTION_DATABASE_ID")
 
     if not token or not database_id:
-        raise NotionError(
-            "NOTION_TOKEN and NOTION_DATABASE_ID must be set in the environment."
-        )
+        raise NotionError("NOTION_TOKEN and NOTION_DATABASE_ID must be set in the environment.")
 
     properties: dict = {
         # Title column is "Email"
@@ -45,9 +44,7 @@ async def add_waitlist_signup(
     if name:
         properties["Name"] = {"rich_text": [{"text": {"content": name}}]}
     if reason:
-        properties["Reason for Interest"] = {
-            "rich_text": [{"text": {"content": reason}}]
-        }
+        properties["Reason for Interest"] = {"rich_text": [{"text": {"content": reason}}]}
     if persona:
         properties["Persona"] = {"select": {"name": persona}}
 
@@ -66,8 +63,6 @@ async def add_waitlist_signup(
         resp = await client.post(NOTION_API_URL, headers=headers, json=payload)
 
     if resp.status_code >= 300:
-        raise NotionError(
-            f"Notion API error {resp.status_code}: {resp.text[:400]}"
-        )
+        raise NotionError(f"Notion API error {resp.status_code}: {resp.text[:400]}")
 
     return resp.json()

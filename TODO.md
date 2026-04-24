@@ -6,32 +6,22 @@ self-contained and can be implemented independently.
 
 ---
 
-## Status snapshot (as of 2026-04-22)
+## Status snapshot
 
 | Item | State |
 |---|---|
-| PR #1 `devops/production-hardening` | Open — P0 fixes committed, ready to merge |
+| PR #1 `devops/production-hardening` | Ready to merge |
 | Fly.io deploy | Not yet done |
 | Domain (morphogenix.ai) | Secured on GoDaddy |
-| `privacy@morphogenix.ai` email | Done 2026-04-22 |
+| `privacy@morphogenix.ai` email | Done |
 
 ---
 
-## P0 — Merge blockers (DONE — committed to PR #1)
-
-- [x] Rate-limit key changed from `X-Forwarded-For` (spoofable) to `Fly-Client-IP`
-      (set by Fly's edge, cannot be injected by clients)
-- [x] Bandit severity flag raised from `-lll` (high only) to `-ll` (medium + high)
-
----
-
-## P1 — Required before first deploy
+## P1 -- Required before first deploy
 
 These are manual steps, not PRs. Someone must do them before `fly deploy`.
 
-- [x] **Secure morphogenix.ai on GoDaddy** — done
-- [x] **Set up privacy@morphogenix.ai** — done 2026-04-22
-- [ ] **Create Fly.io app** — `fly apps create morphogenix-landing`
+- [ ] **Create Fly.io app** -- `fly apps create morphogenix-landing`
 - [ ] **Set Fly secrets** (never commit these):
       ```
       fly secrets set \

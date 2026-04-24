@@ -1,0 +1,42 @@
+/* Minimal styles for /privacy so we don't pull Tailwind on this page. */
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #0A0F14; color: #E6F0EE;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  line-height: 1.6; -webkit-font-smoothing: antialiased; }
+main { max-width: 680px; margin: 0 auto; padding: 4rem 1.5rem; }
+a { color: #7AD1FF; }
+a:hover { color: #39FF9C; }
+h1 { font-size: 2rem; font-weight: 600; letter-spacing: -0.01em; margin: 1.5rem 0 0; }
+h2 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 0.5rem; }
+p, ul { margin: 0.75rem 0; }
+ul { padding-left: 1.25rem; }
+li { margin: 0.25rem 0; }
+.muted { color: #8A9AA6; font-size: 0.875rem; }
+footer { margin-top: 3rem; color: #8A9AA6; font-size: 0.875rem; }
+/* Minimal Tailwind-like class shims used in the template */
+.mx-auto { margin-left: auto; margin-right: auto; }
+.max-w-2xl { max-width: 42rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+.font-sans { font-family: inherit; }
+.leading-relaxed { line-height: 1.6; }
+.text-slate-100 { color: #E6F0EE; }
+.text-slate-400 { color: #8A9AA6; }
+.text-slate-500 { color: #6B7785; }
+.bg-slate-950 { background: #0A0F14; }
+.text-sm { font-size: 0.875rem; }
+.text-3xl { font-size: 1.875rem; }
+.text-xl { font-size: 1.25rem; }
+.font-semibold { font-weight: 600; }
+.tracking-tight { letter-spacing: -0.01em; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-12 { margin-top: 3rem; }
+.space-y-1 > * + * { margin-top: 0.25rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.list-disc { list-style-type: disc; }
+.pl-6 { padding-left: 1.5rem; }
+.underline { text-decoration: underline; }
+.hover\:text-slate-200:hover { color: #D0D9DE; }

@@ -1,0 +1,35 @@
+# fly.toml — MorphoGenix landing page
+# Deploy: `fly deploy`
+# Set secrets first (do NOT put them here):
+#   fly secrets set NOTION_TOKEN=... NOTION_DATABASE_ID=... TURNSTILE_SECRET_KEY=...
+
+app = "morphogenix-landing"
+primary_region = "den"  # Denver — close to founder. Change if you want.
+
+[build]
+
+[env]
+  APP_ENV = "production"
+  # Public Turnstile site key is safe to commit (see https://developers.cloudflare.com/turnstile/get-started/).
+  # If set, the frontend will render the widget and the backend will enforce it.
+  # TURNSTILE_SITE_KEY = "0x4AAAAAAAxxxxxxxxxxxxxx"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1  # avoid dropping signups during cold start
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    protocol = "http"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
