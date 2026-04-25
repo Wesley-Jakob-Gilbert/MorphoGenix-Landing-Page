@@ -1,0 +1,49 @@
+name: Deploy to Fly.io
+
+# Continuous deployment: every push to `main` is auto-deployed to the Fly.io
+# app `morphogenix-landing-page` AFTER the CI workflow (lint, security scan,
+# secret scan) succeeds for that commit.
+#
+# Setup (one-time):
+#   1. Generate a Fly deploy token:
+#        fly tokens create deploy -x 999999h
+#   2. Add it as a GitHub Actions secret named FLY_API_TOKEN at:
+#        https://github.com/Wesley-Jakob-Gilbert/MorphoGenix-Landing-Page/settings/secrets/actions
+#
+# Reference: https://fly.io/docs/launch/continuous-deployment-with-github-actions/
+
+on:
+  # Trigger only after the CI workflow finishes successfully on `main`.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  # Allow manual re-runs from the Actions tab (useful for redeploying without
+  # a new commit, e.g. after rotating Fly secrets).
+  workflow_dispatch:
+
+# Prevent overlapping deploys: if a new commit's deploy starts while one is
+# still in flight, cancel the older one.
+concurrency:
+  group: fly-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    # Skip deploy if CI failed; still allow manual workflow_dispatch runs.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
