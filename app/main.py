@@ -45,6 +45,7 @@ class TrustedHostMiddleware(_TrustedHostMiddleware):
         else:
             await super().__call__(scope, receive, send)
 
+
 load_dotenv()
 
 # ---------- Config ----------
