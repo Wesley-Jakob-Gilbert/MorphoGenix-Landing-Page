@@ -1,35 +1,32 @@
-# fly.toml — MorphoGenix landing page
-# Deploy: `fly deploy`
-# Set secrets first (do NOT put them here):
-#   fly secrets set NOTION_TOKEN=... NOTION_DATABASE_ID=... TURNSTILE_SECRET_KEY=...
+# fly.toml app configuration file generated for morphogenix-landing-page on 2026-04-25T01:57:02Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "morphogenix-landing"
-primary_region = "den"  # Denver — close to founder. Change if you want.
+app = 'morphogenix-landing-page'
+primary_region = 'dfw'
 
 [build]
 
 [env]
-  APP_ENV = "production"
-  # Public Turnstile site key is safe to commit (see https://developers.cloudflare.com/turnstile/get-started/).
-  # If set, the frontend will render the widget and the backend will enforce it.
-  # TURNSTILE_SITE_KEY = "0x4AAAAAAAxxxxxxxxxxxxxx"
+  APP_ENV = 'production'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 1  # avoid dropping signups during cold start
-  processes = ["app"]
+  min_machines_running = 1
+  processes = ['app']
 
   [[http_service.checks]]
-    grace_period = "10s"
-    interval = "30s"
-    method = "GET"
-    path = "/healthz"
-    protocol = "http"
-    timeout = "5s"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/healthz'
+    protocol = 'http'
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  size = 'shared-cpu-1x'
+  memory = '256mb'
