@@ -241,3 +241,5 @@ Post-announce backlog:
 - Notion DB scheduled export / backup
 
 — Built during the [Perplexity Billion Dollar Build](https://perplexity.ai), Week 2.
+
+<!-- Build trigger: 2026-04-25T19:44:13Z -->
