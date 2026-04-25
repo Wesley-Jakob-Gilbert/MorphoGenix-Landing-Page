@@ -14,6 +14,7 @@ import hashlib
 import logging
 import os
 from pathlib import Path
+from typing import Annotated
 
 import httpx
 from dotenv import load_dotenv
@@ -246,7 +247,7 @@ async def _verify_turnstile(token: str, client_ip: str | None) -> bool:
 
 @app.post("/api/waitlist")
 @limiter.limit("5/minute;20/hour")
-async def waitlist(request: Request, signup: WaitlistSignup = Body(...)):
+async def waitlist(request: Request, signup: Annotated[WaitlistSignup, Body()]):
     # 1. Honeypot — bots fill every field; humans never see it.
     if signup.website:
         logger.info("Rejecting waitlist signup: honeypot filled (%s)", _redact_email(signup.email))
