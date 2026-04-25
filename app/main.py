@@ -26,7 +26,9 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware as _TrustedHostMiddleware
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import Receive, Scope, Send
+
+from .notion_client import NotionError, add_waitlist_signup
 
 
 class TrustedHostMiddleware(_TrustedHostMiddleware):
@@ -42,8 +44,6 @@ class TrustedHostMiddleware(_TrustedHostMiddleware):
             await self.app(scope, receive, send)
         else:
             await super().__call__(scope, receive, send)
-
-from .notion_client import NotionError, add_waitlist_signup
 
 load_dotenv()
 
