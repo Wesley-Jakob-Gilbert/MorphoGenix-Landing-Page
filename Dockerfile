@@ -21,7 +21,6 @@ USER 10001
 EXPOSE 8080
 
 # --proxy-headers + --forwarded-allow-ips lets uvicorn (and our rate limiter)
-# trust the X-Forwarded-For header set by Fly's edge proxy.
 CMD ["uvicorn", "app.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8080", \
