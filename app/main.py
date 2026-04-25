@@ -25,7 +25,23 @@ from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware as _TrustedHostMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
+
+
+class TrustedHostMiddleware(_TrustedHostMiddleware):
+    """TrustedHostMiddleware that exempts /healthz for Fly.io internal health checks.
+
+    Fly's health checker hits the VM directly using its internal IP as the Host
+    header, which would otherwise be rejected. /healthz carries no sensitive data
+    so skipping host validation there is safe.
+    """
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") == "http" and scope.get("path") == "/healthz":
+            await self.app(scope, receive, send)
+        else:
+            await super().__call__(scope, receive, send)
 
 from .notion_client import NotionError, add_waitlist_signup
 
