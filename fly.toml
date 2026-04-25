@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for morphogenix-landing-page on 2026-04-25T02:27:09Z
+# fly.toml app configuration file generated for morphogenix-landing-page-1-2pra on 2026-04-25T03:05:58Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'morphogenix-landing-page'
+app = 'morphogenix-landing-page-1-2pra'
 primary_region = 'dfw'
 
 [build]
