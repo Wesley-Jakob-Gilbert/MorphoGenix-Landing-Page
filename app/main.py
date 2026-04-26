@@ -8,8 +8,6 @@ limiter keys on the Fly-Client-IP header (set by Fly's edge, not spoofable
 by clients) rather than X-Forwarded-For (which clients can inject).
 """
 
-from __future__ import annotations
-
 import hashlib
 import logging
 import os
