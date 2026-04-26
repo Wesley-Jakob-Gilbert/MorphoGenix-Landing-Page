@@ -14,6 +14,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache-busting arg so the COPY layer is never reused across deploys.
+# The CD workflow passes a fresh value on every build; locally it just
+# defaults to "dev". Without this, BuildKit can spuriously hit cache on
+# `COPY app` even when the source actually changed.
+ARG BUILD_MARKER=dev
+ENV BUILD_MARKER=${BUILD_MARKER}
+RUN echo "build=${BUILD_MARKER}"
+
 # App code
 COPY app ./app
 

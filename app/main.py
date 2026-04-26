@@ -334,4 +334,5 @@ async def waitlist(request: Request, signup: Annotated[WaitlistSignup, Body()]):
 
 @app.get("/healthz")
 async def healthz():
-    return {"ok": True}
+    # BUILD_MARKER changes per deploy; lets us prove which image is live.
+    return {"ok": True, "build": os.getenv("BUILD_MARKER", "unknown")}

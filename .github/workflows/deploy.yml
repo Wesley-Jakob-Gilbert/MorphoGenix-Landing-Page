@@ -44,6 +44,12 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
+        # --build-arg BUILD_MARKER=<sha-runid> forces BuildKit to invalidate
+        # the COPY app ./app layer on every deploy. Without this, the remote
+        # builder can cache-hit even when app/ source actually changed,
+        # silently shipping stale code.
+        run: |
+          flyctl deploy --remote-only \
+            --build-arg "BUILD_MARKER=${GITHUB_SHA}-${GITHUB_RUN_ID}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
