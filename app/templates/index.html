@@ -647,9 +647,9 @@
 
       <label class="block mt-4">
         <span class="text-xs tracking-widest uppercase text-inklo">I'm a…</span>
-        <div class="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
           <!-- Persona chips using native radio inputs -->
-          {% for p in ["Mewer", "Bruxism sufferer", "Mouth breather", "Clinician", "Other"] %}
+          {% for p in ["Mewer", "Bruxism sufferer", "Mouth breather", "Biohacker", "Clinician", "Other"] %}
           <label class="cursor-pointer">
             <input type="radio" name="persona" value="{{ p }}" class="peer sr-only" />
             <div class="text-center text-sm px-3 py-2 rounded-lg border border-white/10 bg-slatebg text-inklo peer-checked:border-neon peer-checked:text-neon peer-checked:bg-neon/5 transition">{{ p }}</div>

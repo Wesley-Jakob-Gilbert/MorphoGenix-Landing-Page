@@ -215,6 +215,7 @@ ALLOWED_PERSONAS = {
     "Mewer",
     "Bruxism sufferer",
     "Mouth breather",
+    "Biohacker",
     "Clinician",
     "Other",
 }
