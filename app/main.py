@@ -17,7 +17,7 @@ from typing import Annotated
 import httpx
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field
@@ -163,6 +163,7 @@ async def security_headers(request: Request, call_next):
         "Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), interest-cohort=()",
     )
+
     resp.headers.setdefault("Content-Security-Policy", _CSP)
     return resp
 
@@ -170,7 +171,18 @@ async def security_headers(request: Request, call_next):
 # Make sure /static mount never crashes startup if the folder is missing
 # (e.g. a fresh clone on a system that skipped empty dirs).
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
+DEMO_DIR = STATIC_DIR / "demo"
+DEMO_DIR.mkdir(parents=True, exist_ok=True)
+
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/demo", include_in_schema=False)
+async def demo_index():
+    return FileResponse(DEMO_DIR / "index.html")
+
+
+app.mount("/demo", StaticFiles(directory=str(DEMO_DIR), html=True), name="demo")
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
