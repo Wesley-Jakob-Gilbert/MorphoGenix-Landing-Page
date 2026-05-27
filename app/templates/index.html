@@ -133,14 +133,15 @@
 <!-- ============ NAV ============ -->
 <header class="sticky top-0 z-40 backdrop-blur bg-slatebg/70 border-b border-white/5">
   <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2 group">
-      <!-- Logo mark: stylized palate contour -->
-      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" class="text-neon">
-        <path d="M4 20 C 10 8, 22 8, 28 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M8 22 C 12 16, 20 16, 24 22" stroke="#3FA9FF" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="16" cy="24" r="1.6" fill="currentColor"/>
-      </svg>
-      <span class="font-semibold tracking-tight text-inkhi group-hover:text-neon transition">MorphoGenix</span>
+    <a href="#" class="flex items-center group" aria-label="MorphoGenix home">
+      <!-- Logo: combined icon + wordmark -->
+      <img
+        src="{{ url_for('static', path='morphogenix-logo.png') }}"
+        alt="MorphoGenix"
+        width="170"
+        height="54"
+        class="h-10 md:h-11 w-auto transition group-hover:opacity-90"
+      />
     </a>
     <nav class="hidden md:flex items-center gap-7 text-sm text-inklo">
       <a href="#how"    class="hover:text-inkhi transition">How it works</a>
