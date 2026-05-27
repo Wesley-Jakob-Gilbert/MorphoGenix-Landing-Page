@@ -1,0 +1,57 @@
+name: Deploy to Fly.io (staging)
+
+# Continuous deployment for the staging branch.
+#
+# Every push to `staging` is auto-deployed to the Fly.io app
+# `morphogenix-staging` (see fly.staging.toml) AFTER the CI workflow
+# succeeds. This mirrors the production deploy workflow exactly except for
+# the trigger branch, the config file, and the Fly token secret name.
+#
+# Setup (one-time):
+#   1. Create the Fly app:    fly apps create morphogenix-staging
+#   2. Generate a deploy token for ONLY this app:
+#        fly tokens create deploy -x 999999h -a morphogenix-staging
+#   3. Add it as a GitHub Actions secret named FLY_API_TOKEN_STAGING at:
+#        https://github.com/Wesley-Jakob-Gilbert/MorphoGenix-Landing-Page/settings/secrets/actions
+#   4. Set the same app secrets on the staging app
+#      (NOTION_API_KEY, NOTION_DATA_SOURCE_ID, TURNSTILE_SITE_KEY,
+#       TURNSTILE_SECRET_KEY) via `fly secrets set ... -a morphogenix-staging`
+#      or the Fly dashboard.
+
+on:
+  # Trigger only after the CI workflow finishes successfully on `staging`.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [staging]
+  # Allow manual re-runs from the Actions tab.
+  workflow_dispatch:
+
+# Prevent overlapping staging deploys.
+concurrency:
+  group: fly-deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy staging app
+    runs-on: ubuntu-latest
+    # Skip deploy if CI failed; still allow manual workflow_dispatch runs.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io (staging)
+        # Same BUILD_MARKER cache-bust trick as prod so the COPY app ./app
+        # layer always invalidates per deploy.
+        run: |
+          flyctl deploy --config fly.staging.toml --remote-only \
+            --build-arg "BUILD_MARKER=${GITHUB_SHA}-${GITHUB_RUN_ID}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_STAGING }}
