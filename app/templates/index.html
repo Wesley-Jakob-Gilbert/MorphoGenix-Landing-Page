@@ -678,6 +678,57 @@
       <div id="form-msg" class="mt-4 hidden text-sm rounded-lg px-4 py-3"></div>
     </form>
 
+    <!-- ============ SHARE CARD (shown after successful signup) ============ -->
+    <div id="share-card" class="mt-10 hidden rounded-2xl bg-slatecard/80 backdrop-blur border border-neon/30 p-6 md:p-8 glow-ring">
+      <div class="flex items-start gap-4">
+        <div class="shrink-0 w-12 h-12 rounded-full bg-neon/15 border border-neon/40 flex items-center justify-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-neon">
+            <path d="M5 12l4 4L19 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-semibold tracking-tight text-inkhi">You're on the list.</h3>
+          <p id="share-card-msg" class="mt-1 text-sm text-inklo">We'll reach out when the first cohort opens.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-white/5">
+        <p class="text-sm text-inkhi">Know someone who grinds their teeth, mouth-breathes, or is deep into mewing? Forward this — every signup helps us prove demand.</p>
+
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <!-- X / Twitter -->
+          <a id="share-x" href="#" target="_blank" rel="noopener noreferrer"
+            class="share-btn inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-white/10 bg-slatebg text-inkhi hover:border-neon/60 hover:text-neon transition">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2H21l-6.52 7.45L22 22h-6.84l-4.78-6.27L4.8 22H2.04l6.98-7.97L2 2h7.01l4.32 5.71L18.244 2zm-2.4 18h1.86L7.27 4H5.3l10.544 16z"/></svg>
+            <span class="text-sm font-medium">Share on X</span>
+          </a>
+
+          <!-- SMS -->
+          <a id="share-sms" href="#"
+            class="share-btn inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-white/10 bg-slatebg text-inkhi hover:border-neon/60 hover:text-neon transition">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span class="text-sm font-medium">Text a friend</span>
+          </a>
+
+          <!-- Email -->
+          <a id="share-email" href="#"
+            class="share-btn inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-white/10 bg-slatebg text-inkhi hover:border-neon/60 hover:text-neon transition">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span class="text-sm font-medium">Email</span>
+          </a>
+
+          <!-- Copy link -->
+          <button type="button" id="share-copy"
+            class="share-btn inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-white/10 bg-slatebg text-inkhi hover:border-neon/60 hover:text-neon transition">
+            <svg id="share-copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="share-copy-label" class="text-sm font-medium">Copy link</span>
+          </button>
+        </div>
+
+        <p class="mt-4 text-xs text-inklo">Or paste the link anywhere: <span class="font-mono text-inkhi">https://morphogenix.ai</span></p>
+      </div>
+    </div>
+
     {% if not notion_configured %}
       <p class="mt-4 text-center text-xs text-inklo">
         <span class="font-mono text-electric">dev mode</span> · Notion not configured — signups log to the console only.
