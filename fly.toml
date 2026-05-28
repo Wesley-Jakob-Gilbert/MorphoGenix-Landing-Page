@@ -1,9 +1,12 @@
-# fly.toml app configuration file generated for morphogenix-staging on 2026-05-27T23:11:24Z
+# fly.toml app configuration file for morphogenix-landing-page-1-2pra (PROD).
 #
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# DO NOT REGENERATE THIS FILE with `fly launch` from the project root \u2014
+# that command rewrites `app = ...` in-place and will silently retarget
+# production deploys at whatever new app you were creating. If you need to
+# create a new Fly app (e.g. for staging or a preview env), pass
+# `--config fly.<env>.toml` so this file stays untouched.
 
-app = 'morphogenix-staging'
+app = 'morphogenix-landing-page-1-2pra'
 primary_region = 'dfw'
 
 [build]
