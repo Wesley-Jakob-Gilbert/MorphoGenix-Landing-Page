@@ -1,0 +1,45 @@
+# fly.staging.toml — staging environment for MorphoGenix landing page.
+#
+# Mirrors the production fly.toml (same region, same VM size, same health
+# checks) but points at a separate Fly app so staging deploys do not affect
+# the live morphogenix.ai traffic.
+#
+# Used by .github/workflows/deploy-staging.yml on every push to the
+# `staging` branch (after the CI workflow succeeds).
+#
+# To create the Fly app the first time:
+#   fly apps create morphogenix-staging
+#   fly secrets set NOTION_API_KEY=... NOTION_DATA_SOURCE_ID=... \
+#                   TURNSTILE_SITE_KEY=... TURNSTILE_SECRET_KEY=... \
+#                   -a morphogenix-staging
+#   fly deploy --config fly.staging.toml --remote-only
+
+app = 'morphogenix-staging'
+primary_region = 'dfw'
+
+[build]
+
+[env]
+  # Keep production-equivalent so the Turnstile + security headers code paths
+  # are exercised exactly as they will be in prod. /api/docs stays hidden.
+  APP_ENV = 'production'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/healthz'
+    protocol = 'http'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'
