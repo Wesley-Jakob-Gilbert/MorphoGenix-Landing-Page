@@ -177,9 +177,9 @@
         </h1>
 
         <p class="mt-6 max-w-xl text-lg text-inklo leading-relaxed">
-          <span class="text-inkhi font-medium">MorphoGenix</span> is the first intraoral biometric device that measures
-          tongue posture, bruxism, and mouth breathing in real time — so you can see, correct, and finally
-          <em class="not-italic text-electric">train</em> the forces shaping your craniofacial structure.
+          <span class="text-inkhi font-medium">MorphoGenix</span> is the first oral wellness device that measures
+          snoring, grinding, and mouth breathing in real time — so you can see, correct, and finally
+          <em class="not-italic text-electric">train</em> the forces shaping your facial structure.
         </p>
 
         <div class="mt-8 flex flex-col sm:flex-row gap-3">
@@ -454,9 +454,9 @@
     <div class="flex items-end justify-between flex-wrap gap-4">
       <div>
         <span class="chip inline-block text-xs tracking-widest uppercase px-2.5 py-1 rounded-full">How it works</span>
-        <h2 class="mt-4 text-3xl md:text-4xl font-semibold tracking-tight">Three sensors. One retainer. Your whole oral posture, live.</h2>
+        <h2 class="mt-4 text-3xl md:text-4xl font-semibold tracking-tight">Nine sensors. One retainer. Your whole oral posture, live.</h2>
       </div>
-      <p class="max-w-md text-inklo">A thermoformed dental shell with a sealed array of pressure sensors streams over Bluetooth to your device at 10Hz.</p>
+      <p class="max-w-md text-inklo">A molded mouthpiece with an array of pressure, audio and temperature sensors streams over Bluetooth to your phone.</p>
     </div>
 
     <div class="mt-12 grid md:grid-cols-3 gap-5">
@@ -466,15 +466,15 @@
           <div class="w-9 h-9 rounded-lg bg-neon/10 border border-neon/30 grid place-items-center font-mono text-neon">01</div>
           <div class="font-medium">Wear the device</div>
         </div>
-        <p class="mt-4 text-inklo leading-relaxed">A custom-fit upper-arch retainer with a sealed FSR array on the palate and molars. Biocompatible silicone. Barely there.</p>
+        <p class="mt-4 text-inklo leading-relaxed">A custom-fit mouthpiece with a sealed array of pressure sensors on the palate and molars. Biocompatible silicone. Barely there.</p>
       </div>
       <!-- Step 2 -->
       <div class="rounded-2xl bg-slatecard border border-white/5 p-6 hover:border-electric/40 transition">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-electric/10 border border-electric/30 grid place-items-center font-mono text-electric">02</div>
-          <div class="font-medium">Stream over BLE</div>
+          <div class="font-medium">Stream over Bluetooth</div>
         </div>
-        <p class="mt-4 text-inklo leading-relaxed">A microcontroller transmits pressure sensor data over Bluetooth to your phone, tablet, or laptop. Zero wires.</p>
+        <p class="mt-4 text-inklo leading-relaxed">A microcontroller transmits sensor data over Bluetooth to your phone, tablet, or laptop. Zero wires.</p>
       </div>
       <!-- Step 3 -->
       <div class="rounded-2xl bg-slatecard border border-white/5 p-6 hover:border-neon/40 transition">
@@ -539,7 +539,7 @@
       </div>
       <h3 class="mt-6 text-2xl md:text-3xl font-semibold tracking-tight">See it running.</h3>
       <p class="mt-4 text-inklo leading-relaxed">
-        The MorphoGenix companion app, live in your browser. 16-sensor palate heatmap, rolling Posture Score, clench events, and morphoday history
+        The MorphoGenix companion app, live in your browser. 6-sensor palate heatmap, rolling Posture Score, clench events, and morphoday history
         — all streaming with realistic demo data. No install.
       </p>
       <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -547,7 +547,7 @@
           Try the demo
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <span class="text-xs text-inklo font-mono">10 Hz · 16 FSR · noon→noon</span>
+        <span class="text-xs text-inklo font-mono">10 Hz · 6 FSR · noon→noon</span>
       </div>
     </div>
   </div>
@@ -562,7 +562,7 @@
       <p class="mt-5 text-inklo leading-relaxed">
         I'm <span class="text-inkhi font-medium">Wes Gilbert</span> — a solo founder building MorphoGenix as part of Perplexity's
         <span class="text-inkhi">Billion Dollar Build</span> 8-week company competition. The first prototype is hand-wired on a
-        thermoformed dental shell; the first app is a React Native TestFlight build. The first patents are being filed
+        molded silicone dental shell; the first app is a React Native TestFlight build. The first patents are being filed
         at the USPTO right now.
       </p>
       <p class="mt-4 text-inklo leading-relaxed">
@@ -627,7 +627,7 @@
         <span class="text-xs tracking-widest uppercase text-inklo">I'm a…</span>
         <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
           <!-- Persona chips using native radio inputs -->
-          {% for p in ["Mewer", "Bruxism sufferer", "Mouth breather", "Biohacker", "Clinician", "Other"] %}
+          {% for p in ["Mewer", "Clenching sufferer", "Mouth breather", "Biohacker", "Clinician", "Other"] %}
           <label class="cursor-pointer">
             <input type="radio" name="persona" value="{{ p }}" class="peer sr-only" />
             <div class="text-center text-sm px-3 py-2 rounded-lg border border-white/10 bg-slatebg text-inklo peer-checked:border-neon peer-checked:text-neon peer-checked:bg-neon/5 transition">{{ p }}</div>
