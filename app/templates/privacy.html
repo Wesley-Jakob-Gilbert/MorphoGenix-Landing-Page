@@ -24,8 +24,54 @@
       </p>
     </section>
 
+    <section id="app" class="mt-8 space-y-4">
+      <h2 class="text-xl font-semibold">The MorphoGenix App (TestFlight Beta)</h2>
+      <p>
+        The MorphoGenix companion app is currently in early TestFlight beta
+        testing. It is a separate product from the waitlist above, with its
+        own, much simpler data practices:
+      </p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>
+          The app processes sensor-style data (palatal pressure, a posture
+          score, clench-event detection, nasal-breathing detection) intended
+          to come from a paired MorphoGenix wearable over Bluetooth Low
+          Energy. In the current beta build, this data source is simulated —
+          the app replays a pre-recorded demo stream rather than connecting
+          to a physical device, so no real biometric data is read from your
+          body during this testing phase.
+        </li>
+        <li>
+          All data — simulated sensor readings and app settings alike — is
+          stored locally on your device only. The app makes no network
+          requests to any MorphoGenix server or third party, and we do not
+          operate a backend that receives or has access to this data.
+        </li>
+        <li>
+          The app does not integrate any third-party analytics, advertising,
+          or crash-reporting SDKs.
+        </li>
+        <li>
+          The app does not require creating an account or providing any
+          personal information to use it. Any profile name/email shown in
+          the app is placeholder demo content, not data you've entered.
+        </li>
+        <li>
+          Since all data stays on your device, deleting the app removes all
+          locally stored data with it.
+        </li>
+      </ul>
+      <p>
+        As the app moves beyond this early beta (for example, connecting to
+        real hardware or adding cloud sync/account features), this section
+        will be updated to reflect what is collected and how it's used,
+        before those features ship. Questions about the app specifically:
+        <a class="underline" href="mailto:privacy@morphogenix.ai">privacy@morphogenix.ai</a>.
+      </p>
+    </section>
+
     <section class="mt-8 space-y-4">
-      <h2 class="text-xl font-semibold">What we collect</h2>
+      <h2 class="text-xl font-semibold">What we collect (waitlist form)</h2>
       <p>When you submit the waitlist form, we collect:</p>
       <ul class="list-disc pl-6 space-y-1">
         <li>Your email address (required)</li>
