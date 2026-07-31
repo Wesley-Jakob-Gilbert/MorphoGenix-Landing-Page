@@ -132,7 +132,14 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 # Minimal security headers. CSP allows the Tailwind CDN + Turnstile script
 # for now; tighten further once Tailwind is built locally.
-_CSP_SCRIPT_SRC = "'self' https://cdn.tailwindcss.com https://challenges.cloudflare.com"
+# The sha256 hash whitelists Expo Router's one-line inline hydration script
+# (`globalThis.__EXPO_ROUTER_HYDRATE__=true;`) shipped in the /demo bundle,
+# without opening 'unsafe-inline' globally.
+_EXPO_HYDRATE_SHA = "'sha256-67fhrP0+BkBqmgGGXTtgiVO/9EQs3QruYNU/7fnRkI8='"
+_CSP_SCRIPT_SRC = (
+    "'self' https://cdn.tailwindcss.com https://challenges.cloudflare.com "
+    f"{_EXPO_HYDRATE_SHA}"
+)
 _CSP_FRAME_SRC = "https://challenges.cloudflare.com"
 _CSP = (
     "default-src 'self'; "
