@@ -137,8 +137,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 # without opening 'unsafe-inline' globally.
 _EXPO_HYDRATE_SHA = "'sha256-67fhrP0+BkBqmgGGXTtgiVO/9EQs3QruYNU/7fnRkI8='"
 _CSP_SCRIPT_SRC = (
-    "'self' https://cdn.tailwindcss.com https://challenges.cloudflare.com "
-    f"{_EXPO_HYDRATE_SHA}"
+    f"'self' https://cdn.tailwindcss.com https://challenges.cloudflare.com {_EXPO_HYDRATE_SHA}"
 )
 _CSP_FRAME_SRC = "https://challenges.cloudflare.com"
 _CSP = (
